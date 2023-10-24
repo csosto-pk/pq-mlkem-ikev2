@@ -19,37 +19,43 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
-category: info
+title: "Post-quantum Key Exchange with ML-KEM in the Internet Key Exchange Protocol Version 2 (IKEv2)"
+abbrev: "ML-KEM IKEv2"
+category: standard
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-kampanakis-ml-kem-ikev2
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
 consensus: true
 v: 3
-area: AREA
-workgroup: WG Working Group
+area: Security
+workgroup: IPSECME
 keyword:
  - next generation
  - unicorn
  - sparkling distributed ledger
-venue:
-  group: WG
-  type: Working Group
-  mail: WG@example.com
-  arch: https://example.com/WG
-  github: USER/REPO
-  latest: https://example.com/LATEST
+# venue:
+#   group: WG
+#   type: Working Group
+#   mail: WG@example.com
+#   arch: https://example.com/WG
+#   github: USER/REPO
+#   latest: https://example.com/LATEST
 
 author:
  -
-    fullname: Your Name Here
-    organization: Your Organization Here
-    email: your.email@example.com
+    fullname: Panos Kampanakis
+    organization: Amazon Web Services 
+    email: kpanos@amazon.com
+
+  -
+    fullname: Gerardo Ravago
+    organization: Amazon Web Services 
+    email: gcr@amazon.com
 
 normative:
+    RFC9370: 
 
 informative:
 
