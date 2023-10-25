@@ -1,47 +1,22 @@
 ---
-###
-# Internet-Draft Markdown Template
-#
-# Rename this file from draft-todo-yourname-protocol.md to get started.
-# Draft name format is "draft-<yourname>-<workgroup>-<name>.md".
-#
-# For initial setup, you only need to edit the first block of fields.
-# Only "title" needs to be changed; delete "abbrev" if your title is short.
-# Any other content can be edited, but be careful not to introduce errors.
-# Some fields will be set automatically during setup if they are unchanged.
-#
-# Don't include "-00" or "-latest" in the filename.
-# Labels in the form draft-<yourname>-<workgroup>-<name>-latest are used by
-# the tools to refer to the current version; see "docname" for example.
-#
-# This template uses kramdown-rfc: https://github.com/cabo/kramdown-rfc
-# You can replace the entire file if you prefer a different format.
-# Change the file extension to match the format (.xml for XML, etc...)
-#
-###
+stand_alone: true
+ipr: trust200902
+docname: draft-kampanakis-ml-kem-ikev2
+cat: std
+consensus: 'true'
+pi:
+  toc: 'yes'
+  sortrefs: 'yes'
+  symrefs: 'yes'
 title: "Post-quantum Key Exchange with ML-KEM in the Internet Key Exchange Protocol Version 2 (IKEv2)"
 abbrev: "ML-KEM IKEv2"
-category: standard
-
-docname: draft-kampanakis-ml-kem-ikev2
-submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
-number:
-date:
-consensus: true
-v: 3
+submissionType: IETF
 area: Security
 workgroup: IPSECME
+kw: Internet-Draft
+date: 2022-08-12
 keyword:
- - next generation
- - unicorn
- - sparkling distributed ledger
-# venue:
-#   group: WG
-#   type: Working Group
-#   mail: WG@example.com
-#   arch: https://example.com/WG
-#   github: USER/REPO
-#   latest: https://example.com/LATEST
+ - PQ IKEv2
 
 author:
  -
@@ -49,7 +24,7 @@ author:
     organization: Amazon Web Services 
     email: kpanos@amazon.com
 
-  -
+ -
     fullname: Gerardo Ravago
     organization: Amazon Web Services 
     email: gcr@amazon.com
@@ -76,6 +51,23 @@ TODO Introduction
 
 {::boilerplate bcp14-tagged}
 
+# ML-KEM 
+
+Explain how KEMs work and explain how the responder response includes the encapsulated ciphertext.
+
+Keygen
+Encaps
+Decaps
+
+# ML-KEM in IKE_INTERMEDIATE 
+
+How key SKEYSEED and KEYMAT is generated. 
+
+IKE_INTERMEDIATE fragmented carrying ML-KEM in rfc9370 of how to combine it. Protection of additional key exchange as per rfc9242 3.3.1. Authenticated as per 3.3.2. 
+
+Explain how the initiator message will include ML-KEM public key is encoded as raw bytes on-the-wire format (https://www.rfc-editor.org/rfc/rfc8031.html uses the X25519 encoding (search for encoding")). 
+
+IANA Key Exchange identifier 
 
 # Security Considerations
 
@@ -84,7 +76,7 @@ TODO Security
 
 # IANA Considerations
 
-This document has no IANA actions.
+New Transform Type 4 - Key Exchange Method Transform ID 35 ML-KEM-768 and 36 ML-KEM-1024 https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-8 
 
 
 --- back
