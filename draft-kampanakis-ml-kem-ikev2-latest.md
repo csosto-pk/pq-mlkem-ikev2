@@ -14,7 +14,7 @@ submissionType: IETF
 area: Security
 workgroup: IPSECME
 kw: Internet-Draft
-# date: 2022-08-12
+date: {DATE}
 keyword:
  - PQ IKEv2
 
@@ -61,6 +61,8 @@ Decaps
 
 # ML-KEM in IKE_INTERMEDIATE 
 
+{{!RFC9370}}
+
 How key SKEYSEED and KEYMAT is generated. 
 
 IKE_INTERMEDIATE fragmented carrying ML-KEM in rfc9370 of how to combine it. Protection of additional key exchange as per rfc9242 3.3.1. Authenticated as per 3.3.2. 
@@ -84,4 +86,4 @@ New Transform Type 4 - Key Exchange Method Transform ID 35 ML-KEM-768 and 36 ML-
 # Acknowledgments
 {:numbered="false"}
 
-TODO acknowledge.
+[EDNOTE: Update here. ]
