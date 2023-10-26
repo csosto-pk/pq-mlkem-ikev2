@@ -55,9 +55,21 @@ TODO Introduction
 
 Explain how KEMs work and explain how the responder response includes the encapsulated ciphertext.
 
-Keygen
-Encaps
-Decaps
+This document models key agreement as key encapsulation mechanisms (KEMs), which consist of three algorithms:
+
+-  KeyGen() -> (pk, sk): A probabilistic key generation algorithm, which generates a public key pk and a secret key sk.
+-  Encaps(pk) -> (ct, ss): A probabilistic encapsulation algorithm, which takes as input a public key pk and outputs a ciphertext ct and shared secret ss.
+-  Decaps(sk, ct) -> ss: A decapsulation algorithm, which takes as input a secret key sk and ciphertext ct and outputs a shared secret ss, or in some cases a distinguished error value.
+
+The main security property for KEMs is indistinguishability under
+   adaptive chosen ciphertext attack (IND-CCA2), which means that shared
+   secret values should be indistinguishable from random strings even
+   given the ability to have other arbitrary ciphertexts decapsulated.
+   IND-CCA2 corresponds to security against an active attacker, and the
+   public key / secret key pair can be treated as a long-term key or
+   reused.  A common design pattern for obtaining security under key
+   reuse is to apply the Fujisaki-Okamoto (FO) transform [FO] or a
+   variant thereof [HHK].
 
 # ML-KEM in IKE_INTERMEDIATE 
 
