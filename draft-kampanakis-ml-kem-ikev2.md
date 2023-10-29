@@ -85,28 +85,43 @@ Security levels for NIST.
 
 # ML-KEM in IKE_INTERMEDIATE 
 
-Section 2.2.2 {{!RFC9370}}
-n = 1 one Intermediate Key Exchange
-KEi(0), KEr(0) is regular ECDH key exchange in the first IKE_SA_INIT messages
+Transfrom ADDKE1 As per {{!RFC9370}} with an identifier of 35 or 36 for ML-KEM-768 or ML-KEM-1024. 
 
-First key exchange SK_d(0) derived from IKE_SA_INIT 
-
-KEi(1), KEr(1) is ML-KEM. 
-KEi(1), KEr(1) takes place in an intermediate key exchange {{!RFC9242}} 
+As per {{!RFC9370}},  first a set of keying materials is derived, in particular SK_d, SK_a[i/r], and SK_e[i/r] are derived in the IKE_SA_INIT. 
 
 Section 2.2.2 {{!RFC9370}}
 n = 1 one Intermediate Key Exchange
 KEi(0), KEr(0) is regular ECDH key exchange in the first IKE_SA_INIT messages
 
-First key exchange SK_d(0) derived from IKE_SA_INIT 
-
+Both peers then perform an IKE_INTERMEDIATE exchange, carrying new Key Exchange payload, which is protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT. 
+Section 2.2.2 {{!RFC9370}}
+n = 1 one Intermediate Key Exchange
 KEi(1), KEr(1) is ML-KEM. 
 KEi(1), KEr(1) takes place in an intermediate key exchange {{!RFC9242}} 
+
+~~~
+Initiator                                Responder
+-------------------------------------  ------------------------------
+HDR(IKE_SA_INIT), SAi1, KEi, Ni,
+[N(INTERMEDIATE_EXCHANGE_SUPPORTED)]-->
+                                   <-- HDR(IKE_SA_INIT), SAr1, KEr,
+                                                     Nr, [CERTREQ],
+                                   [N(INTERMEDIATE_EXCHANGE_SUPPORTED)
+
+HDR(IKE_INTERMEDIATE), SK {KEi(1)}  -->
+                                   <-- HDR(IKE_INTERMEDIATE),SK{KEr(1)}
+
+                  HDR(IKE_AUTH) ... -->
+                                   <--  HDR(IKE_AUTH) ...
+~~~
 
 ## Key Exchange Payload
 
 [ EDNOTE: From https://www.rfc-editor.org/rfc/rfc8031.html#section-3.1 . Update accordingly
 
+The HDR of the IKE_INTERMEDIATE messages carrying the ML-KEM exchange will have a Next Payload value of 34 (Key Exchange), Exchange Type of 43 (IKE_INTERMEDIATE) and Message ID of 1 (first and only additional key exchange). 
+
+The protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT ML-KEM key exchange payload which use 
    The diagram for the Key Exchange payload from Section 3.4 of RFC 7296
    is copied below for convenience:
    
@@ -128,8 +143,8 @@ KEi(1), KEr(1) takes place in an intermediate key exchange {{!RFC9242}}
   the Payload Length field will be 40.  For Curve448, the public key
   is 56 octets, so the Payload Length field will be 64.
   
-- The Diffie-Hellman Group Num is 31 for Curve25519 or 32 for
-  Curve448.
+- The Key Exchange Method is 35 for ML-KEM-768 or 36 for
+  ML-KEM-1024.
   
 - The Key Exchange Data is the 32 or 56 octets as described in
       Section 6 of [RFC7748].
@@ -140,9 +155,18 @@ KEr(1) is the encaps with the ciphertext encoded as. Then initiator decapsulates
 Both sides reach SK(1) = ss. 
 
 
+## PRoposal 
+
+
+
+ADDKE [ EDNOTE: Update hre or remove ] 
+
 ## Key derivation
 
-As per {{!RFC9370}} combines 
+As per {{!RFC9370}},  first a set of keying materials is derived, in particular SK_d, SK_a[i/r], and SK_e[i/r] are derived in the IKE_SA_INIT. 
+First key exchange IKE_SA_INIT SK_d(0) derived from IKE_SA_INIT 
+
+Both peers then perform an IKE_INTERMEDIATE exchange, carrying new Key Exchange payload, which is protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT. 
 
 ~~~
 SKEYSEED(1) = prf(SK_d(0), SK(1) | Ni | Nr)
@@ -173,9 +197,24 @@ The SKEYSEED combine SK_d and stir all the negotiated keys as per 2.2.4 {{!RFC93
 
 ## Recipient Tests {#receipent-tests}
 
-[EDNOTE: This is from https://www.rfc-editor.org/rfc/rfc8031.html#section-5 . Update here] 
+[EDNOTE: Update here about implicit rejection of the public key at the responder or the ciphertext at the initiator. ] 
 
-Receiving and handling of incompatible point formats MUST follow the considerations described in Section 5 of [RFC7748]. In particular, receiving entities MUST mask the most-significant bit in the final byte for X25519 (but not X448), and implementations MUST accept non-canonical values.
+[ EDNOTE: From This is from https://www.rfc-editor.org/rfc/rfc8031.html#section-5 about curve25519 ] 
+Receiving and handling of incompatible ML-KEM public key or ciphertext formats MUST follow the considerations described in Section 5 of [RFC7748]. In particular, receiving entities MUST mask the most-significant bit in the final byte for X25519 (but not X448), and implementations MUST accept non-canonical values.
+
+[ EDNOTE: From https://www.rfc-editor.org/rfc/rfc6989.html#section-2.3 about P256 ]
+IKEv2 can be used with elliptic curve groups defined over a field
+GF(p) [RFC5903] [RFC5114].  According to [Menezes], Section 2.3,
+there is some informational leakage possible.  A receiving peer MUST
+check that its peer's public value is valid; that is, the x and y
+parameters from the peer's public value satisfy the curve equation,
+y^2 = x^3 + ax + b mod p (where for groups 19, 20, and 21, a=-3 (mod
+p), and all other values of a, b, and p for the group are listed in
+the RFC defining the group).
+We note that an additional check to ensure that the public value is
+not the point at infinity is not needed, because IKE (see Section 7
+of [RFC5903]) does not allow for encoding this value. 
+
 
 # Security Considerations
 
@@ -184,20 +223,24 @@ All security considerations of {{!RFC9242}}, {{!RFC9370}} apply.
 
 # IANA Considerations
 
-IANA Key Exchange identifier 
-
-New Transform Type 4 - Key Exchange Method Transform ID 35 ML-KEM-768 and 36 ML-KEM-1024 https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-8 
+IANA is requested to assign two values for the names "mlkem-768" and "mlkem-1024" in the IKEv2 "Transform Type 4 - Key Exchange Method Transform IDs" and has listed this document as the reference.  The Recipient Tests field should also point to this document:
 
 |--------|------------|--------|-----------------|-----------|
 | Number |    Name    | Status | Recipient Tests | Reference |
 |--------|------------|--------|-----------------|-----------|
 |   35   | mlkem-768  |        | [TBD, this draft, {{receipent-tests}}],  | [TBD, this draft]  |
 |   36   | mlkem-1024 |        | [TBD, this draft, {{receipent-tests}}],  |  [TBD, this draft]  |
-|--------|------------|--------|--------------|-----------|
-        
+| 37-1023 |	Unassigned|        |                 |           |       
+|--------|------------|--------|-----------------|-----------|
+{: #tab1 title="Updates to the IANA \"Transform Type 4 - Key Exchange Method Transform IDs\" table" }
+
+https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-8 
+
+
 --- back
 
 # Acknowledgments
 {:numbered="false"}
 
 [EDNOTE: Update here. ]
+The authors would like to thank Valery Smyslov for his valuable contributions to the document. 
