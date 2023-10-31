@@ -8,7 +8,7 @@ pi:
   toc: 'yes'
   sortrefs: 'yes'
   symrefs: 'yes'
-title: "Post-quantum Key Exchange with ML-KEM in the Internet Key Exchange Protocol Version 2 (IKEv2)"
+title: "Post-quantum Hybrid Key Exchange with ML-KEM in the Internet Key Exchange Protocol Version 2 (IKEv2)"
 abbrev: "ML-KEM IKEv2"
 submissionType: IETF
 area: Security
@@ -38,7 +38,7 @@ informative:
 
 --- abstract
 
-A CRQC could threated the encrypted data run over IKEv2/IPsec tunnels. Some could store data and decrypt. New standardized KEMs are coming. This draft specifies how to use ML-KEM on top of classical key exchange in IKEv2. This will allows to negotiate quantum safe keys in IKE SA and Child SAs to address the concern.
+NIST recently standardized ML-KEM, a new key encapsulation mechanism, which can be used for quantum-resistant key establishment. This draft specifies how to use ML-KEM as an additionall key exchange mechanism in IKEv2 along with traditional (elliptic curve) Diffie-Hellman. This hybrid approach allows for negotiating IKE and Child SA keys which are safe against cryptanalytically-relevant quantum computers and theoretical weaknesses in new algorithm which have not been thoroughly analyzed.
 
 
 --- middle
@@ -48,6 +48,8 @@ A CRQC could threated the encrypted data run over IKEv2/IPsec tunnels. Some coul
 Quantum computing threat. Someone storing data today. Link to PPK draft as a temporary option.
 
 {{!RFC9242}} defines how to do additional key exchanges for IKE SA rekey or Child SA establishment usine a new message INTERMEDIATE. This message can be fragmented. 
+
+Key Encapsulation KEM and NIST.
 
 {{!RFC9370}} defines how to do up to 7 additional key exchange and derive new SKEYSEED and KEYMAT in order to rekey an SA orcrete or rekey a Child SA. That way someone could do an additional post-quantum key exchange on top of the classical key exchange in the 
 The derived keys for IPsec are quantum-sagfe a CRQC cannot decrypt. 
