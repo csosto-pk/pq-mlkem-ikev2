@@ -58,46 +58,37 @@ This draft profiles  {{!RFC9370}} and specifies has ML-KEM algorithms can be use
 
 ## KEMs
 
-Explain how KEMs work and explain how the responder response includes the encapsulated ciphertext.
+Explain how KEMs work. 
 
-This document models key agreement as key encapsulation mechanisms (KEMs), which consist of three algorithms:
+In the context of the NIST Post-Quantum Cryptography Standardization Project [NIST_PQ], key exchange algorithms are formulated as key encapsulation mechanisms (KEMs), which consist of three algorithms:
 
--  KeyGen() -> (pk, sk): A probabilistic key generation algorithm, which generates a public key pk and a secret key sk.
--  Encaps(pk) -> (ct, ss): A probabilistic encapsulation algorithm, which takes as input a public key pk and outputs a ciphertext ct and shared secret ss.
--  Decaps(sk, ct) -> ss: A decapsulation algorithm, which takes as input a secret key sk and ciphertext ct and outputs a shared secret ss, or in some cases a distinguished error value.
+- 'KeyGen() -> (pk, sk)': A probabilistic key generation algorithm, which generates a public key 'pk' and a secret key 'sk'.
+- 'Encaps(pk) -> (ct, ss)': A probabilistic encapsulation algorithm, which takes as input a public key 'pk' and outputs a ciphertext 'ct' and shared secret 'ss'.
+- 'Decaps(sk, ct) -> ss': A decapsulation algorithm, which takes as input a secret key 'sk' and ciphertext 'ct' and outputs a shared secret 'ss', or in some cases a distinguished error value.
 
-The main security property for KEMs is indistinguishability under adaptive chosen ciphertext attack (IND-CCA2), which means that shared secret values should be indistinguishable from random strings even given the ability to have other arbitrary ciphertexts decapsulated. IND-CCA2 corresponds to security against an active attacker, and the public key / secret key pair can be treated as a long-term key or  reused. A common design pattern for obtaining security under key reuse is to apply the Fujisaki-Okamoto (FO) transform [FO] or a variant thereof [HHK].
+The main security property for KEMs is indistinguishability under adaptive chosen ciphertext attack (IND-CCA2), which means that shared secret values should be indistinguishable from random strings even given the ability to have arbitrary ciphertexts decapsulated. IND-CCA2 corresponds to security against an active attacker, and the public key / secret key pair can be treated as a long-term key or reused.  A weaker security notion is indistinguishability under chosen plaintext attack (IND-CPA), which means that the shared secret values should be indistinguishable from random strings given a copy of the public key.  IND-CPA roughly corresponds to security against a passive attacker, and sometimes corresponds to one-time key exchange.
 
 ## ML-KEM
 
-Explain parameters 
-
-[EDNOTE: Add reference to IETF Kyber fraft or NIST FIPS 203 spec.] 
-ML-KEM-512, 768, 1024. 
+Explain ML-KEM. 
+Explain parameters. ML-KEM-512, 768, 1024.
+Add reference to IETF Kyber fraft or NIST FIPS 203 spec.  
 
 Security levels for NIST. 
-512 out of scope long confidentiality and studies for parformance and VPN tunnels stay up. Very efficient. Mo need for 512 for IKEv2 and thus not specified here. 
 
+ML-KEM-512 out of scope long confidentiality and studies for parformance and VPN tunnels stay up. Very efficient. Mo need for 512 for IKEv2 and thus not specified here. 
 
 ## Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
 
+
+
 # ML-KEM in IKE_INTERMEDIATE 
 
-Transfrom ADDKE1 As per {{!RFC9370}} with an identifier of 35 or 36 for ML-KEM-768 or ML-KEM-1024. 
+As per {{!RFC9370}}, in its initial proposal in Security Associations the initiator includes an KE (ECDH usually) and ADDKE Transform Type with Transform ID of 35 or 36 for ML-KEM-768 or ML-KEM-1024. The responder will return a proposal which includes a KE Transform Type if it wants to negotiate the one from the initiator and an ADDKE1 with the ML-KEM it choses.
 
-As per {{!RFC9370}},  first a set of keying materials is derived, in particular SK_d, SK_a[i/r], and SK_e[i/r] are derived in the IKE_SA_INIT. 
-
-Section 2.2.2 {{!RFC9370}}
-n = 1 one Intermediate Key Exchange
-KEi(0), KEr(0) is regular ECDH key exchange in the first IKE_SA_INIT messages
-
-Both peers then perform an IKE_INTERMEDIATE exchange, carrying new Key Exchange payload, which is protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT. 
-Section 2.2.2 {{!RFC9370}}
-n = 1 one Intermediate Key Exchange
-KEi(1), KEr(1) is ML-KEM. 
-KEi(1), KEr(1) takes place in an intermediate key exchange {{!RFC9242}} 
+The IKE_SA_INIT
 
 ~~~
 Initiator                                Responder
@@ -115,15 +106,28 @@ HDR(IKE_INTERMEDIATE), SK {KEi(1)}  -->
                                    <--  HDR(IKE_AUTH) ...
 ~~~
 
+Section 2.2.2 {{!RFC9370}}
+KEi(0), KEr(0) is regular ECDH key exchange in the first IKE_SA_INIT messages
+As per {{!RFC9370}},  first a set of keying materials is derived, in particular SK_d, SK_a[i/r], and SK_e[i/r] are derived in the IKE_SA_INIT. 
+
+Both peers then perform an IKE_INTERMEDIATE exchange, carrying new Key Exchange payload, which is protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT  as per {{!RFC9242}} 3.3.1. Authenticated as per 3.3.2.  
+
+Explain how the initiator message will include ML-KEM public key is encoded as raw bytes on-the-wire format (https://www.rfc-editor.org/rfc/rfc8031.html uses the X25519 encoding (search for encoding")). 
+Section 2.2.2 {{!RFC9370}}
+n = 1 one Intermediate Key Exchange
+KEi(1), KEr(1) is ML-KEM.  
+KEi(1) is the Keygen and public key encoded as 
+KEi(1), KEr(1) takes place in an intermediate key exchange {{!RFC9242}} 
+KEr(1) is the encaps with the ciphertext encoded as. Then initiator decapsulates 
+Both sides reach SK(1) = ss. 
+
 ## Key Exchange Payload
 
-[ EDNOTE: From https://www.rfc-editor.org/rfc/rfc8031.html#section-3.1 . Update accordingly
+[ EDNOTE: From https://www.rfc-editor.org/rfc/rfc8031.html#section-3.1 . Update accordingly ]
 
 The HDR of the IKE_INTERMEDIATE messages carrying the ML-KEM exchange will have a Next Payload value of 34 (Key Exchange), Exchange Type of 43 (IKE_INTERMEDIATE) and Message ID of 1 (first and only additional key exchange). 
 
-The protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT ML-KEM key exchange payload which use 
-   The diagram for the Key Exchange payload from Section 3.4 of RFC 7296
-   is copied below for convenience:
+The protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT ML-KEM key exchange payload which use the diagram for the Key Exchange payload from Section 3.4 of RFC 7296 is copied below for convenience:
    
 ~~~
                        1                   2                   3
@@ -139,27 +143,11 @@ The protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT ML-KEM key 
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
 ~~~
   
-- Payload Length - For Curve25519, the public key is 32 octets, so
-  the Payload Length field will be 40.  For Curve448, the public key
-  is 56 octets, so the Payload Length field will be 64.
-  
-- The Key Exchange Method is 35 for ML-KEM-768 or 36 for
-  ML-KEM-1024.
-  
-- The Key Exchange Data is the 32 or 56 octets as described in
-      Section 6 of [RFC7748].
+- Payload Length - For  ML-KEM-768, the public key is XYZ octets, so the Payload Length field will be XYZ.  For  ML-KEM-1024, the public key is XYZ octets, so the Payload Length field will be XYZ.
+- The Key Exchange Method is 35 for ML-KEM-768 or 36 for ML-KEM-1024. 
+- The Key Exchange Data is the 32 or 56 octets as described in Section 6 of [RFC7748].
 
-Explain how the initiator message will include ML-KEM public key is encoded as raw bytes on-the-wire format (https://www.rfc-editor.org/rfc/rfc8031.html uses the X25519 encoding (search for encoding")). 
-KEi(1) is the Keygen and public key encoded as 
-KEr(1) is the encaps with the ciphertext encoded as. Then initiator decapsulates 
-Both sides reach SK(1) = ss. 
-
-
-## PRoposal 
-
-
-
-ADDKE [ EDNOTE: Update hre or remove ] 
+IKE_INTERMEDIATE fragmented as per {{?RFC7383}} carrying ML-KEM in rfc9370 of how to combine it. 
 
 ## Key derivation
 
@@ -172,20 +160,18 @@ Both peers then perform an IKE_INTERMEDIATE exchange, carrying new Key Exchange 
 SKEYSEED(1) = prf(SK_d(0), SK(1) | Ni | Nr)
 ~~~
 
-The other keying materials, SK_d, SK_ai, SK_ar, SK_ei, SK_er, SK_pi, and SK_pr, are generated from the SKEYSEED(n) as follows: 
+The other new keying materials, SK_d, SK_ai, SK_ar, SK_ei, SK_er, SK_pi, and SK_pr, are generated from the SKEYSEED(1) as follows: 
 
 ~~~
 {SK_d(1) | SK_ai(1) | SK_ar(1) | SK_ei(1) | SK_er(1) | SK_pi(1) |
        SK_pr(1)} = prf+ (SKEYSEED(1), Ni | Nr | SPIi | SPIr)
 ~~~
 
- SK_d(1) is used as SK_d in generating the Child SA keying material.
+SK_d(1) is used as SK_d in generating the Child SA keying material.
 
 Afterwards both peers continue to the IKE_AUTH exchange phase. use these updated key values in the next exchange IKE_AUTH
 
 As per {{!RFC9242}}, both peers compute IntAuth_i1 and IntAuth_r1 using the SK_pi(1) and SK_pr(1) keys, respectively. These values are required in the IKE_AUTH phase of the exchange. IntAuth_i1 and IntAuth_r1 are used to compute IntAuth, which, in turn, is used to calculate InitiatorSignedOctets and ResponderSignedOctets blobs (see Section 3.3.2 of {{!RFC9242}}).
-
-IKE_INTERMEDIATE fragmented as per {{?RFC7383}} carrying ML-KEM in rfc9370 of how to combine it. Protection of additional key exchange as per {{!RFC9242}}  3.3.1. Authenticated as per 3.3.2. 
 
 The CREATE_CHILD_SA exchange is used in IKEv2 for the purposes of creating additional Child SAs, rekeying these Child SAs, and rekeying IKE SA itself as per 2.2.4 {{!RFC9370}}. 
 
@@ -203,17 +189,7 @@ The SKEYSEED combine SK_d and stir all the negotiated keys as per 2.2.4 {{!RFC93
 Receiving and handling of incompatible ML-KEM public key or ciphertext formats MUST follow the considerations described in Section 5 of [RFC7748]. In particular, receiving entities MUST mask the most-significant bit in the final byte for X25519 (but not X448), and implementations MUST accept non-canonical values.
 
 [ EDNOTE: From https://www.rfc-editor.org/rfc/rfc6989.html#section-2.3 about P256 ]
-IKEv2 can be used with elliptic curve groups defined over a field
-GF(p) [RFC5903] [RFC5114].  According to [Menezes], Section 2.3,
-there is some informational leakage possible.  A receiving peer MUST
-check that its peer's public value is valid; that is, the x and y
-parameters from the peer's public value satisfy the curve equation,
-y^2 = x^3 + ax + b mod p (where for groups 19, 20, and 21, a=-3 (mod
-p), and all other values of a, b, and p for the group are listed in
-the RFC defining the group).
-We note that an additional check to ensure that the public value is
-not the point at infinity is not needed, because IKE (see Section 7
-of [RFC5903]) does not allow for encoding this value. 
+IKEv2 can be used with elliptic curve groups defined over a field GF(p) [RFC5903] [RFC5114].  According to [Menezes], Section 2.3, there is some informational leakage possible.  A receiving peer MUST check that its peer's public value is valid; that is, the x and y parameters from the peer's public value satisfy the curve equation, y^2 = x^3 + ax + b mod p (where for groups 19, 20, and 21, a=-3 (mod p), and all other values of a, b, and p for the group are listed in the RFC defining the group). We note that an additional check to ensure that the public value is not the point at infinity is not needed, because IKE (see Section 7 of [RFC5903]) does not allow for encoding this value. 
 
 
 # Security Considerations
