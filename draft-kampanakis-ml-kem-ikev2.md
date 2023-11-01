@@ -32,9 +32,18 @@ author:
     email: gcr@amazon.com
 
 normative:
-
+  FIPS203: DOI.10.6028/NIST.FIPS.203
+ 
 informative:
-
+  FIPS203-ipd:
+    title: "Module-Lattice-based Key-Encapsulation Mechanism Standard"
+    author:
+      org: National Institute of Standards and Technology (NIST)
+    date: 2023-08-24
+    seriesinfo:
+      NIST: Federal Information Processing Standards
+    format:
+      PDF: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.ipd.pdf
 
 --- abstract
 
@@ -45,18 +54,13 @@ NIST recently standardized ML-KEM, a new key encapsulation mechanism, which can 
 
 # Introduction
 
-Quantum computing threat. Someone storing data today. Link to PPK draft as a temporary option.
+A Cryptographically Relevant Quantum Computer (CRQC), if it became a reality, could threaten public key encryption algorithms used today for key exhange. Someone storing encrypted communications which use (Elliptic Curve) Diffie-Hellman ((EC)DH) to negotiate keys could decrypt these communications in the future after a CRQC was available. This could include Internet Key Exchange Protocol Version 2 (IKEv2)/IPsec tunnels which negotiate IKE and Child SA keys by using classical public key algorithms in their IKE_SA_INIT messages. 
 
-{{!RFC9242}} defines how to do additional key exchanges for IKE SA rekey or Child SA establishment usine a new message INTERMEDIATE. This message can be fragmented. 
+To address this concern, {{?RFC8784}} introduced Post-quantum Preshared Keys as a temporary option for stirring a pre-shared key of adequate entropy in the derived Child SA encryption keys in order to provide quantum-resistance. Since then, {{!RFC9242}} defined how to do additional large message exchanges by using a new IKE_INTERMEDIATE message. As post-quantum keys are usualy larger than common network Maximum Transport Units (MTU), IKE_INTERMEDIATE messages can be fragmented which could allow for the peers to do post-quantum key exchanges without IP fragmentation. {{!RFC9370}} defined how to do up to seven additional key exchanges by using IKE_INTERMEDIATE messages and derive new SKEYSEED and KEYMAT key materials. This allows for new post-quantum key exchanges to be used in the derived IKE and Child SA keys and provide quantum resistance. 
 
-Key Encapsulation KEM and NIST.
+NIST has been working on a public project for standardizing quantum-safe algorithms which include key enscapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization {{?I-D.draft-cfrg-schwabe-kyber-03}}. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in {{FIPS203-ipd}}. ML-KEM was standardized in 2024 {{FIPS203}}. [ EDNOTE: Reference normatively the ratified version {{?I-D.draft-cfrg-schwabe-kyber-03}} if it is ever ratified. Otherwise keep a normative reference of {{FIPS203}}. And remove the reference to {{FIPS203-ipd}}. ]
 
-{{!RFC9370}} defines how to do up to 7 additional key exchange and derive new SKEYSEED and KEYMAT in order to rekey an SA orcrete or rekey a Child SA. That way someone could do an additional post-quantum key exchange on top of the classical key exchange in the 
-The derived keys for IPsec are quantum-sagfe a CRQC cannot decrypt. 
-
-This draft describes how ML-KEM can be used as the quantum-safe key. ML-KEM is the NIST standardized KEM by NIST. [EDNOTE: Add reference to IETF Kyber fraft or NIST FIPS 203 spec.] 
-
-This draft profiles  {{!RFC9370}} and specifies has ML-KEM algorithms can be used as the one additional INTERMEDIATE key exchange. This key exchange can be used to rekey IKE SAs or Child SAs or create a new Child SA. 
+This document describes how ML-KEM can be used as the quantum-safe KEM in IKEv2 by using one additional IKE_INTERMEDIATE key exchange negotiation after the classical (EC)DH exchange in IKE_SA_INIT. The result is a new Child SA key or an IKE or Child SA rekey with keying material which is safe against a CRQC. This specification is a profile of {{!RFC9370}} and registers new algorithm identifiers for ML-KEM key exchanges in IKEv2. 
 
 ## KEMs
 
@@ -85,8 +89,7 @@ ML-KEM-512 out of scope long confidentiality and studies for parformance and VPN
 {::boilerplate bcp14-tagged}
 
 
-
-# ML-KEM in IKE_INTERMEDIATE 
+# ML-KEM in IKEv2 
 
 As per {{!RFC9370}}, in its initial proposal in Security Associations the initiator includes an KE (ECDH usually) and ADDKE Transform Type with Transform ID of 35 or 36 for ML-KEM-768 or ML-KEM-1024. The responder will return a proposal which includes a KE Transform Type if it wants to negotiate the one from the initiator and an ADDKE1 with the ML-KEM it choses.
 
@@ -129,6 +132,7 @@ Both sides reach SK(1) = ss.
 
 The HDR of the IKE_INTERMEDIATE messages carrying the ML-KEM exchange will have a Next Payload value of 34 (Key Exchange), Exchange Type of 43 (IKE_INTERMEDIATE) and Message ID of 1 (first and only additional key exchange). 
 
+
 The protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT ML-KEM key exchange payload which use the diagram for the Key Exchange payload from Section 3.4 of RFC 7296 is copied below for convenience:
    
 ~~~
@@ -137,7 +141,7 @@ The protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT ML-KEM key 
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
   | Next Payload  |C|  RESERVED   |         Payload Length        |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-  |   Diffie-Hellman Group Num    |           RESERVED            |
+  |   Key Exchange Method Num    |           RESERVED            |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
   |                                                               |
   ~                       Key Exchange Data                       ~
@@ -150,6 +154,8 @@ The protected with SK_e[i/r] and SK_a[i/r] keys from the IKE_SA_INIT ML-KEM key 
 - The Key Exchange Data is the 32 or 56 octets as described in Section 6 of [RFC7748].
 
 IKE_INTERMEDIATE fragmented as per {{?RFC7383}} carrying ML-KEM in rfc9370 of how to combine it. 
+
+ML-KEM-768 and ML-KEM-1024 Key Exchange Method identifiers SHOULD be used in IKE_INTERMEDIATE exchanges. They SHOULD NOT be used in IKE_SA_INIT exchanges because they could be introducing fragmentation. 
 
 ## Key derivation
 
