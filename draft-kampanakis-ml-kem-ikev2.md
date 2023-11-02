@@ -45,6 +45,14 @@ informative:
     format:
       PDF: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.ipd.pdf
 
+  NIST-PQ:
+    title: "Post-Quantum Cryptography"
+    author:
+      org: National Institute of Standards and Technology (NIST)
+    date: 2016-2024
+    seriesinfo:
+      https://csrc.nist.gov/projects/post-quantum-cryptography
+
 --- abstract
 
 NIST recently standardized ML-KEM, a new key encapsulation mechanism, which can be used for quantum-resistant key establishment. This draft specifies how to use ML-KEM as an additionall key exchange mechanism in IKEv2 along with traditional (elliptic curve) Diffie-Hellman. This hybrid approach allows for negotiating IKE and Child SA keys which are safe against cryptanalytically-relevant quantum computers and theoretical weaknesses in new algorithm which have not been thoroughly analyzed.
@@ -58,31 +66,27 @@ A Cryptographically Relevant Quantum Computer (CRQC), if it became a reality, co
 
 To address this concern, {{?RFC8784}} introduced Post-quantum Preshared Keys as a temporary option for stirring a pre-shared key of adequate entropy in the derived Child SA encryption keys in order to provide quantum-resistance. Since then, {{!RFC9242}} defined how to do additional large message exchanges by using a new IKE_INTERMEDIATE message. As post-quantum keys are usualy larger than common network Maximum Transport Units (MTU), IKE_INTERMEDIATE messages can be fragmented which could allow for the peers to do post-quantum key exchanges without IP fragmentation. {{!RFC9370}} defined how to do up to seven additional key exchanges by using IKE_INTERMEDIATE messages and derive new SKEYSEED and KEYMAT key materials. This allows for new post-quantum key exchanges to be used in the derived IKE and Child SA keys and provide quantum resistance. 
 
-NIST has been working on a public project for standardizing quantum-safe algorithms which include key enscapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization {{?I-D.draft-cfrg-schwabe-kyber-03}}. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in {{FIPS203-ipd}}. ML-KEM was standardized in 2024 {{FIPS203}}. [ EDNOTE: Reference normatively the ratified version {{?I-D.draft-cfrg-schwabe-kyber-03}} if it is ever ratified. Otherwise keep a normative reference of {{FIPS203}}. And remove the reference to {{FIPS203-ipd}}. ]
+NIST has been working on a public project {{NIST-PQ}} for standardizing quantum-safe algorithms which include key enscapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization {{?I-D.draft-cfrg-schwabe-kyber-03}}. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in {{FIPS203-ipd}}. ML-KEM was standardized in 2024 {{FIPS203}}. [ EDNOTE: Reference normatively the ratified version {{?I-D.draft-cfrg-schwabe-kyber-03}} if it is ever ratified. Otherwise keep a normative reference of {{FIPS203}}. And remove the reference to {{FIPS203-ipd}}. ]
 
 This document describes how ML-KEM can be used as the quantum-safe KEM in IKEv2 by using one additional IKE_INTERMEDIATE key exchange negotiation after the classical (EC)DH exchange in IKE_SA_INIT. The result is a new Child SA key or an IKE or Child SA rekey with keying material which is safe against a CRQC. This specification is a profile of {{!RFC9370}} and registers new algorithm identifiers for ML-KEM key exchanges in IKEv2. 
 
 ## KEMs
 
-Explain how KEMs work. 
-
-In the context of the NIST Post-Quantum Cryptography Standardization Project [NIST_PQ], key exchange algorithms are formulated as key encapsulation mechanisms (KEMs), which consist of three algorithms:
+In the context of the NIST Post-Quantum Cryptography Standardization Project {{NIST-PQ}}, key exchange algorithms are formulated as KEMs, which consist of three steps:
 
 - 'KeyGen() -> (pk, sk)': A probabilistic key generation algorithm, which generates a public key 'pk' and a secret key 'sk'.
 - 'Encaps(pk) -> (ct, ss)': A probabilistic encapsulation algorithm, which takes as input a public key 'pk' and outputs a ciphertext 'ct' and shared secret 'ss'.
 - 'Decaps(sk, ct) -> ss': A decapsulation algorithm, which takes as input a secret key 'sk' and ciphertext 'ct' and outputs a shared secret 'ss', or in some cases a distinguished error value.
 
-The main security property for KEMs is indistinguishability under adaptive chosen ciphertext attack (IND-CCA2), which means that shared secret values should be indistinguishable from random strings even given the ability to have arbitrary ciphertexts decapsulated. IND-CCA2 corresponds to security against an active attacker, and the public key / secret key pair can be treated as a long-term key or reused.  A weaker security notion is indistinguishability under chosen plaintext attack (IND-CPA), which means that the shared secret values should be indistinguishable from random strings given a copy of the public key.  IND-CPA roughly corresponds to security against a passive attacker, and sometimes corresponds to one-time key exchange.
+The main security property for KEM standardized by NIST is indistinguishability under adaptive chosen ciphertext attack (IND-CCA2), which means that shared secret values should be indistinguishable from random strings even given the ability to have arbitrary ciphertexts decapsulated. IND-CCA2 corresponds to security against an active attacker, and the public key / secret key pair can be treated as a long-term key or reused.  A weaker security notion is indistinguishability under chosen plaintext attack (IND-CPA), which means that the shared secret values should be indistinguishable from random strings given a copy of the public key. IND-CPA roughly corresponds to security against a passive attacker, and sometimes corresponds to one-time key exchange.
 
 ## ML-KEM
 
-Explain ML-KEM. 
-Explain parameters. ML-KEM-512, 768, 1024.
-Add reference to IETF Kyber fraft or NIST FIPS 203 spec.  
+ML-KEM is a recently standardized lattice-based key encapsulation mechanism {{FIPS203}}. [ EDNOTE: Reference normatively the ratified version {{?I-D.draft-cfrg-schwabe-kyber-03}} if it is ever ratified. Otherwise keep a normative reference of {{FIPS203}}. ]
 
-Security levels for NIST. 
+ML-KEM is using Module Learning with Errors as it underlying primitive which is a structure lattices variant that offer good performance and relatively small and balanced key and ciphertext sizes. ML-KEM was standardized with three variants, ML-KEM-512, ML-KEM-768, and ML-KEM-1024. These were mapped by NIST to the three security levels defined in the NIST PQC Project, Level 1, 3, and 5. These levels correspond to the hardness of solving breaking AES-128, AES-192 and AES-256 respectively. 
 
-ML-KEM-512 out of scope long confidentiality and studies for parformance and VPN tunnels stay up. Very efficient. Mo need for 512 for IKEv2 and thus not specified here. 
+This specification introduces ML-KEM-768 and ML-KEM-1024 to IKEv2 key exchanges as conservative security level parameters which will not have material impact on IKEv2/IPsec tunnels which usually stay up for long periods of time. Since the ML-KEM-768 and ML-KEM-1024 public key and ciphertext sizes can exceed the typical network MTU, these key exchanges will usually require two or three network packets from both the initiator and the responder.  
 
 ## Conventions and Definitions
 
