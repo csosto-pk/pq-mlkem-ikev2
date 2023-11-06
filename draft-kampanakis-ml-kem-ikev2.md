@@ -185,7 +185,7 @@ Creating additional Child SAs, rekeying these Child SAs, and rekeying IKE SA its
 KEYMAT = prf+ (SK_d, SK(0) | Ni | Nr | SK(1))
 ~~~
 
-IKE SAs can be rekeyed similarly by negotiating a new (EC)DH and ML-KEM key. The SKEYSEED combines SK_d and stirs all the negotiated keys as per Section 2.2.4 of {{!RFC9370}}: 
+IKE SAs can be rekeyed similarly by negotiating a new (EC)DH and ML-KEM key. The SKEYSEED combines SK_d and stirs all the negotiated keys ((EC)DH shared key SK(0), ML-KEM shared key SK(1)) as per Section 2.2.4 of {{!RFC9370}}: 
 
 ~~~
 SKEYSEED = prf(SK_d, SK(0) | Ni | Nr | SK(1))
