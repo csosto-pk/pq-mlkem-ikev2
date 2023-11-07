@@ -139,7 +139,7 @@ The IKE_INTERMEDIATE payload which is protected with SK_e[i/r] and SK_a[i/r] key
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 | Next Payload  |C|  RESERVED   |         Payload Length        |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|   Key Exchange Method Num    |           RESERVED            |
+|   Key Exchange Method Num    |           RESERVED             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                                                               |
 ~                       Key Exchange Data                       ~
@@ -193,13 +193,11 @@ SKEYSEED = prf(SK_d, SK(0) | Ni | Nr | SK(1))
 
 ## Recipient Tests {#receipent-tests}
 
-[EDNOTE: Update here about implicit rejection of the public key at the responder or the ciphertext at the initiator. ] 
+Receiving and handling of malformed ML-KEM public key or ciphertext MUST follow the input validation described in {{FIPS203}}. [ EDNOTE: Reference normatively the ratified version {{?I-D.draft-cfrg-schwabe-kyber-03}} if it is ever ratified. Otherwise keep a normative reference of {{FIPS203}}. ]
 
-[ EDNOTE: From This is from https://www.rfc-editor.org/rfc/rfc8031.html#section-5 about curve25519 ] 
-Receiving and handling of incompatible ML-KEM public key or ciphertext formats MUST follow the considerations described in Section 5 of [RFC7748]. In particular, receiving entities MUST mask the most-significant bit in the final byte for X25519 (but not X448), and implementations MUST accept non-canonical values.
+In particular, entities receiving the ML-KEM public key to encapsulate to MUST perform the type and modulus checks in Sections 6.1 of {{FIPS203}} and reject the ML-KEM public key, if malformed. Entities receiving an ML-KEM ciphetext for decapsulation MUST perform the ciphertext and decapsulation key type checks in Section 6.2 of {{FIPS203}} and reject the ciphertext or key, if malformed. [ EDNOTE: Reference normatively the ratified version {{?I-D.draft-cfrg-schwabe-kyber-03}} if it is ever ratified. Otherwise keep a normative reference of {{FIPS203}}. ] These checks could be performed separately before performing the encapsulation or decapsulation steps or be part of the encapsulation or decapsulation process
 
-[ EDNOTE: From https://www.rfc-editor.org/rfc/rfc6989.html#section-2.3 about P256 ]
-IKEv2 can be used with elliptic curve groups defined over a field GF(p) [RFC5903] [RFC5114].  According to [Menezes], Section 2.3, there is some informational leakage possible.  A receiving peer MUST check that its peer's public value is valid; that is, the x and y parameters from the peer's public value satisfy the curve equation, y^2 = x^3 + ax + b mod p (where for groups 19, 20, and 21, a=-3 (mod p), and all other values of a, b, and p for the group are listed in the RFC defining the group). We note that an additional check to ensure that the public value is not the point at infinity is not needed, because IKE (see Section 7 of [RFC5903]) does not allow for encoding this value. 
+Note that at decapsulation, ML-KEM uses implicit rejection which leads the decapsulating entity to implicitly reject the decapsulated shared secret by setting it to a hash of the ciphertext together with a random value stored in the ML-KEM secret when the re-encrypted shared secret does not match the original one. [ EDNOTE: Confirm implicit rejection is still used after {{FIPS203}} is ratified or change this paragraph. ] 
 
 
 # Security Considerations
