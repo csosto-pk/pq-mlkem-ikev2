@@ -55,6 +55,8 @@ informative:
 
 --- abstract
 
+[EDNOTE: The intention of this draft is to get IANA KE codepoints for ML-KEM. It could be a standards track draft given that ML-KEM will see a lot of adoption, or a AD sponsored draft, or even a individual stable draft which gets codepoints from Expert Review. The approach is to be decided by the IPSECME WG. ] 
+
 NIST recently standardized ML-KEM, a new key encapsulation mechanism, which can be used for quantum-resistant key establishment. This draft specifies how to use ML-KEM as an additionall key exchange mechanism in IKEv2 along with traditional (Elliptic Curve) Diffie-Hellman. This hybrid approach allows for negotiating IKE and Child SA keys which are safe against cryptanalytically-relevant quantum computers and theoretical weaknesses in ML-KEM as it is relatively new.
 
 
