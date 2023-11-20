@@ -81,7 +81,7 @@ appear in all capitals, as shown here.</t>
       <name>ML-KEM in IKEv2</name>
       <section anchor="ml-kem-in-ikeintermediate-messages">
         <name>ML-KEM in IKE_INTERMEDIATE messages</name>
-        <t>ML-KEM key exchanges can be negotiated in IKE_INTERMEDIATE messages. As per <xref target="RFC9370"/>, in its initial Security Association (SA) proposal, the initiator includes a Key Exchange (KE) Transform Type 4 for (EC)DH along with an Additional Key Exchange 1 (ADDKE1) Transform Type 4 with ID of 35 or 36 for ML-KEM-768 or ML-KEM-1024 respectively. The responder returns a proposal which includes the matching KE and ADDKE1 Transform Type 4 IDs it chooses from the initiator proposal.</t>
+        <t>ML-KEM key exchanges can be negotiated in IKE_INTERMEDIATE messages. As per <xref target="RFC9370"/>, in its initial Security Association (SA) proposal, the initiator includes a Key Exchange (KE) Transform Type 4 for (EC)DH along with an Additional Key Exchange 1 (ADDKE1) Transform Type 4 with ID of TBD35 or TBD36 for ML-KEM-768 or ML-KEM-1024 respectively. The responder returns a proposal which includes the matching KE and ADDKE1 Transform Type 4 IDs it chooses from the initiator proposal.</t>
         <t>The IKE_SA_INIT and IKE_INTERMEDIATE exchanges between the initiator and responder, as per <xref target="RFC9370"/>, are:</t>
         <artwork><![CDATA[
 Initiator                                Responder
@@ -126,7 +126,7 @@ HDR(IKE_INTERMEDIATE), SK {KEi(1)}  -->
             <t>Payload Length: The ML-KEM-768 public key is 1184 bytes, so the Payload Length field included in the payload of the IKE_INTERMEDIATE message from the initiator is 1192. The ML-KEM-768 ciphertext is 1088 bytes, so the Payload Length of IKE_INTERMEDIATE message from the responder is 1096. The ML-KEM-1024 public key is 1568 bytes, so the Payload Length field included in the payload of the IKE_INTERMEDIATE from the initiator is 1576. The ML-KEM-1024 ciphertext is 1568 bytes, so the Payload Length of IKE_INTERMEDIATE from the responder is 1576.</t>
           </li>
           <li>
-            <t>The Key Exchange Method Num identifier is 35 for ML-KEM-768 or 36 for ML-KEM-1024. ML-KEM-768 and ML-KEM-1024 Key Exchange Method identifiers <bcp14>SHOULD</bcp14> be used in IKE_INTERMEDIATE exchanges. They <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT because they could often be introducing IP fragmentation which is not possible in IKE_SA_INIT exchanges.</t>
+            <t>The Key Exchange Method Num identifier is TBD35 for ML-KEM-768 or TBD36 for ML-KEM-1024. ML-KEM-768 and ML-KEM-1024 Key Exchange Method identifiers <bcp14>SHOULD</bcp14> be used in IKE_INTERMEDIATE exchanges. They <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT because they could often be introducing IP fragmentation which is not possible in IKE_SA_INIT exchanges.</t>
           </li>
           <li>
             <t>The Key Exchange Data is the 1184 or 1568 octets of the ML-KEM-768 or ML-KEM-1024 public key respectively for the IKE_INTERMEDIATE message from the initiator. The response from the responder is 1088 or 1568 octets as the size of the ML-KEM-768 or ML-KEM-1024 ciphertexts respectively.</t>
@@ -186,14 +186,14 @@ SKEYSEED = prf(SK_d, SK(0) | Ni | Nr | SK(1))
         </thead>
         <tbody>
           <tr>
-            <td align="left">35</td>
+            <td align="left">TBD35</td>
             <td align="left">mlkem-768</td>
             <td align="left"> </td>
             <td align="left">[TBD, this draft, <xref target="receipent-tests"/>],</td>
             <td align="left">[TBD, this draft]</td>
           </tr>
           <tr>
-            <td align="left">36</td>
+            <td align="left">TBD36</td>
             <td align="left">mlkem-1024</td>
             <td align="left"> </td>
             <td align="left">[TBD, this draft, <xref target="receipent-tests"/>],</td>
