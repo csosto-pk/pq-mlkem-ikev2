@@ -32,7 +32,7 @@
       <?line 56?>
 
 <t>[EDNOTE: The intention of this draft is to get IANA KE codepoints for ML-KEM. It could be a standards track draft given that ML-KEM will see a lot of adoption, an AD sponsored draft, or even an individual stable draft which gets codepoints from Expert Review. The approach is to be decided by the IPSECME WG. ]</t>
-      <t>NIST recently standardized ML-KEM, a new key encapsulation mechanism, which can be used for quantum-resistant key establishment. This draft specifies how to use ML-KEM as an additional key exchange mechanism in IKEv2 along with traditional (Elliptic Curve) Diffie-Hellman. This PQ/T Hybrid Key Encapsulation Mechanism (KEM) <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/>  approach allows for negotiating IKE and Child SA keys which are safe against cryptanalytically-relevant quantum computers and theoretical weaknesses in ML-KEM as it is relatively new.</t>
+      <t>NIST recently standardized ML-KEM, a new key encapsulation mechanism, which can be used for quantum-resistant key establishment. This draft specifies how to use ML-KEM as an additional key exchange mechanism in IKEv2 along with traditional (Elliptic Curve) Diffie-Hellman. This PQ/T Hybrid Key Encapsulation Mechanism (KEM) <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/>  approach allows for negotiating IKE and Child SA keys which are safe against cryptanalytically-relevant quantum computers and theoretical weaknesses in ML-KEM as it was relatively new at the time of this writing.</t>
     </abstract>
   </front>
   <middle>
@@ -86,7 +86,7 @@ appear in all capitals, as shown here.</t>
 		<t>The ML-KEM shared secret is stirred into new keying material SK_d, SK_a[i/r], and SK_e[i/r] as defined in Section 2.2.2 of <xref target="RFC9370"/>.</t>
 		<t>Afterwards the peers continue to the IKE_AUTH exchange phase as defined in Section 3.3.2 of <xref target="RFC9242"/>.</t>
 		<t>ML-KEM can be used in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> to create or rekey a Child SA or rekey the IKE SA.  The IKE or Child SA can be rekeyed by stirring the new shared secret in SKEYSEED and KEYMAT as specified in Section 2.2.4 of <xref target="RFC9370"/>.</t>
-        <t>IKE_INTERMEDIATE messages carrying ML-KEM public keys and ciphertexts, can be fragmented as per <xref target="RFC7383"/> since the ML-KEM-768 and ML-KEM-1024 public keys and ciphertexts can exceed typical network MTUs (1500 bytes). Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> scenario, ML-KEM-768 Key Exchange Method identifier TBD35 <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-safe-only key exchange because the encapsulation key is 1184 bytes, which assuming an additional 250 bytes of IKE header data, can fit in typical network MTUs of 1500 bytes. [EDNOTE: Confirm it fits the MTU with captures.] ML-KEM-1024 Key Exchange Method identifier TBD36 <bcp14>SHOULD</bcp14> only be used in IKE_INTERMEDIATE exchanges. It <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT because they could often be introducing IP fragmentation which is not possible in IKE_SA_INIT exchanges. [ EDNOTE: Consider adding ML-KEM-512 which would fit in one packet. ] </t>    
+        <t>IKE_INTERMEDIATE messages carrying ML-KEM public keys and ciphertexts, can be fragmented as per <xref target="RFC7383"/> since the ML-KEM-768 and ML-KEM-1024 public keys and ciphertexts can exceed typical network MTUs (1500 bytes). Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> scenario, ML-KEM-768 Key Exchange Method identifier TBD35 <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-safe-only key exchange because the encapsulation key is 1184 bytes, which assuming an additional 250 bytes of IKE header data, can fit in typical network MTUs of 1500 bytes. [EDNOTE: Confirm it fits the MTU with captures.] ML-KEM-1024 Key Exchange Method identifier TBD36 <bcp14>SHOULD</bcp14> only be used in IKE_INTERMEDIATE exchanges. It <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT because they could often be introducing IKEv2 fragmentation <xref target="RFC7383"/> which is not possible in IKE_SA_INIT exchanges. [ EDNOTE: Consider adding ML-KEM-512 which would fit in one packet. ] </t>    
       </section>
       <section anchor="key-exchange-payload">
         <name>Key Exchange Payload</name>
@@ -316,24 +316,6 @@ appear in all capitals, as shown here.</t>
               <organization>Cloudflare</organization>
             </author>
             <date day="25" month="September" year="2023"/>
-            <abstract>
-              <t>   This memo specifies a preliminary version ("draft00", "v3.02") of
-   Kyber, an IND-CCA2 secure Key Encapsulation Method.
-
-About This Document
-
-   This note is to be removed before publishing as an RFC.
-
-   The latest revision of this draft can be found at
-   https://bwesterb.github.io/draft-schwabe-cfrg-kyber/draft-cfrg-
-   schwabe-kyber.html.  Status information for this document may be
-   found at https://datatracker.ietf.org/doc/draft-cfrg-schwabe-kyber/.
-
-   Source for this draft and an issue tracker can be found at
-   https://github.com/bwesterb/draft-schwabe-cfrg-kyber.
-
-              </t>
-            </abstract>
           </front>
           <seriesInfo name="Internet-Draft" value="draft-cfrg-schwabe-kyber-03"/>
         </reference>
