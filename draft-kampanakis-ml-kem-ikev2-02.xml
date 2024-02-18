@@ -64,7 +64,7 @@
         <name>ML-KEM</name>
         <t>ML-KEM is a recently standardized lattice-based key encapsulation mechanism <xref target="FIPS203"/>. [ EDNOTE: Reference normatively the ratified version <xref target="I-D.draft-cfrg-schwabe-kyber-03"/> if it is ever ratified. Otherwise keep a normative reference of <xref target="FIPS203"/>. ]</t>
         <t>ML-KEM is using Module Learning with Errors as its underlying primitive which is a structured lattices variant that offers good performance and relatively small and balanced key and ciphertext sizes. ML-KEM was standardized with three parameters, ML-KEM-512, ML-KEM-768, and ML-KEM-1024. These were mapped by NIST to the three security levels defined in the NIST PQC Project, Level 1, 3, and 5. These levels correspond to the hardness of breaking AES-128, AES-192 and AES-256 respectively.</t>
-        <t>This specification introduces ML-KEM-768 and ML-KEM-1024 to IKEv2 key exchanges as conservative security level parameters which will not have material performance impact on IKEv2/IPsec tunnels which usually stay up for long periods of time. Since the ML-KEM-768 and ML-KEM-1024 public key and ciphertext sizes can exceed the typical network MTU, these key exchanges will usually require two or three network IP packets from both the initiator and the responder.</t>
+        <t>This specification introduces ML-KEM-768 and ML-KEM-1024 to IKEv2 key exchanges as conservative security level parameters which will not have material performance impact on IKEv2/IPsec tunnels which usually stay up for long periods of time. Since the ML-KEM-768 and ML-KEM-1024 public key and ciphertext sizes can exceed the typical network MTU, these key exchanges will usually require two or three network IP packets from both the initiator and the responder. [ EDNOTE: Consider adding ML-KEM-512 which would fit in one packet. ] </t>
       </section>
       <section anchor="conventions-and-definitions">
         <name>Conventions and Definitions</name>
@@ -86,7 +86,7 @@ appear in all capitals, as shown here.</t>
 		<t>The ML-KEM shared secret is stirred into new keying material SK_d, SK_a[i/r], and SK_e[i/r] as defined in Section 2.2.2 of <xref target="RFC9370"/>.</t>
 		<t>Afterwards the peers continue to the IKE_AUTH exchange phase as defined in Section 3.3.2 of <xref target="RFC9242"/>.</t>
 		<t>ML-KEM can be used in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> to create or rekey a Child SA or rekey the IKE SA.  The IKE or Child SA can be rekeyed by stirring the new shared secret in SKEYSEED and KEYMAT as specified in Section 2.2.4 of <xref target="RFC9370"/>.</t>
-        <t>IKE_INTERMEDIATE messages carrying ML-KEM public keys and ciphertexts, can be fragmented as per <xref target="RFC7383"/> since the ML-KEM-768 and ML-KEM-1024 public keys and ciphertexts can exceed typical network MTUs (1500 bytes). Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> scenario, ML-KEM-768 Key Exchange Method identifier TBD35 <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-safe-only key exchange because the encapsulation key is 1184 bytes, which assuming an additional 250 bytes of IKE header data, can fit in typical network MTUs of 1500 bytes. [EDNOTE: Confirm it fits the MTU with captures.] ML-KEM-1024 Key Exchange Method identifier TBD36 <bcp14>SHOULD</bcp14> only be used in IKE_INTERMEDIATE exchanges. It <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT because they could often be introducing IP fragmentation which is not possible in IKE_SA_INIT exchanges.</t>    
+        <t>IKE_INTERMEDIATE messages carrying ML-KEM public keys and ciphertexts, can be fragmented as per <xref target="RFC7383"/> since the ML-KEM-768 and ML-KEM-1024 public keys and ciphertexts can exceed typical network MTUs (1500 bytes). Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> scenario, ML-KEM-768 Key Exchange Method identifier TBD35 <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-safe-only key exchange because the encapsulation key is 1184 bytes, which assuming an additional 250 bytes of IKE header data, can fit in typical network MTUs of 1500 bytes. [EDNOTE: Confirm it fits the MTU with captures.] ML-KEM-1024 Key Exchange Method identifier TBD36 <bcp14>SHOULD</bcp14> only be used in IKE_INTERMEDIATE exchanges. It <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT because they could often be introducing IP fragmentation which is not possible in IKE_SA_INIT exchanges. [ EDNOTE: Consider adding ML-KEM-512 which would fit in one packet. ] </t>    
       </section>
       <section anchor="key-exchange-payload">
         <name>Key Exchange Payload</name>
@@ -107,13 +107,13 @@ appear in all capitals, as shown here.</t>
 ]]></artwork>
         <ul spacing="normal">
           <li>
-            <t>Payload Length: The ML-KEM-768 public key is 1184 bytes, so the Payload Length field included in the payload of the IKE_INTERMEDIATE message from the initiator is 1192. The ML-KEM-768 ciphertext is 1088 bytes, so the Payload Length of IKE_INTERMEDIATE message from the responder is 1096. The ML-KEM-1024 public key is 1568 bytes, so the Payload Length field included in the payload of the IKE_INTERMEDIATE from the initiator is 1576. The ML-KEM-1024 ciphertext is 1568 bytes, so the Payload Length of IKE_INTERMEDIATE from the responder is 1576.</t>
+            <t>Payload Length: The ML-KEM-768 public key is 1184 bytes, so the Payload Length field included in the payload of the IKE_INTERMEDIATE message from the initiator is 1192. The ML-KEM-768 ciphertext is 1088 bytes, so the Payload Length of IKE_INTERMEDIATE message from the responder is 1096. The ML-KEM-1024 public key is 1568 bytes, so the Payload Length field included in the payload of the IKE_INTERMEDIATE from the initiator is 1576. The ML-KEM-1024 ciphertext is 1568 bytes, so the Payload Length of IKE_INTERMEDIATE from the responder is 1576. [ EDNOTE: Consider adding ML-KEM-512 which would fit in one packet. ] </t>
           </li>
           <li>
-            <t>The Key Exchange Method Num identifier is TBD35 for ML-KEM-768 or TBD36 for ML-KEM-1024.</t>
+            <t>The Key Exchange Method Num identifier is TBD35 for ML-KEM-768 or TBD36 for ML-KEM-1024. [ EDNOTE: Consider adding ML-KEM-512 which would fit in one packet. ] </t>
           </li>
           <li>
-            <t>The Key Exchange Data is the 1184 or 1568 octets of the ML-KEM-768 or ML-KEM-1024 public key respectively for the IKE_INTERMEDIATE message from the initiator. The response from the responder is 1088 or 1568 octets as the size of the ML-KEM-768 or ML-KEM-1024 ciphertexts respectively.</t>
+            <t>The Key Exchange Data is the 1184 or 1568 octets of the ML-KEM-768 or ML-KEM-1024 public key respectively for the IKE_INTERMEDIATE message from the initiator. The response from the responder is 1088 or 1568 octets as the size of the ML-KEM-768 or ML-KEM-1024 ciphertexts respectively. [ EDNOTE: Consider adding ML-KEM-512 which would fit in one packet. ] </t>
           </li>
         </ul>
       </section>
@@ -126,6 +126,8 @@ appear in all capitals, as shown here.</t>
     <section anchor="security-considerations">
       <name>Security Considerations</name>
       <t>All security considerations from <xref target="RFC9242"/> and <xref target="RFC9370"/> apply to the ML-KEM exchanges described in this specification.</t>
+      <t>The ML-KEM public key generated by the initiator and the ciphertext generated by the responder use randomness (usually a seed) which must be independent of any other random seed used in the IKEv2 negotiation. For example, at the initiator, the ML-KEM and ECDH keypairs should not be generated from the same seed.</t>
+      <t>Although ML-KEM is IND-CCA2 secure, reusing the same ML-KEM keypair does not offer forward secrecy. The initiator should generate a new ML-KEM keypair with every ML-KEM key exchange.</t>    
     </section>
     <section anchor="iana-considerations">
       <name>IANA Considerations</name>
@@ -353,7 +355,7 @@ About This Document
 
 <section numbered="false" anchor="acknowledgments">
       <name>Acknowledgments</name>
-      <t>The authors would like to thank Valery Smyslov and Graham Bartlett for their valuable contributions to the document.</t>
+      <t>The authors would like to thank Valery Smyslov, Graham Bartlett, Scott Fluhrer, Ben S, and Leonie Bruckert for their valuable feedback.</t>
     </section>
   </back>
   <!-- ##markdown-source:
