@@ -102,6 +102,8 @@ appear in all capitals, as shown here.</t>
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
 ]]></artwork>
 
+	<t><xref target="ke_payload_table"/> shows the Payload Length, Key Exchange Method Num identifier and the Key Exchange Data Size in Octets for Key Exchange Payloads from the initiator and the responder for the ML-KEM variants specific in this document. 
+	[EDNOTE: Confirm fields with packet captures.]</t>
 <table anchor="ke_payload_table">
   <name>Key Exchange Payload Fields</name>
   <thead>
@@ -133,8 +135,7 @@ appear in all capitals, as shown here.</t>
     </tr>
   </tbody>
 </table>
-	<t><xref target="ke_payload_table"/> shows the Payload Length, Key Exchange Method Num identifier and the Key Exchange Data Size in Octets for Key Exchange Payloads from the initiator and the responder for the ML-KEM variants specific in this document. 
-	[EDNOTE: Confirm fields with packet captures.]</t>
+
       </section>
       <section anchor="receipent-tests">
         <name>Recipient Tests</name>
