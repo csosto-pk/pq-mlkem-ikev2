@@ -11,7 +11,7 @@
   <!-- xml2rfc v2v3 conversion 3.18.2 -->
   <front>
     <title abbrev="ML-KEM IKEv2">Post-quantum Hybrid Key Exchange with ML-KEM in the Internet Key Exchange Protocol Version 2 (IKEv2)</title>
-    <seriesInfo name="Internet-Draft" value="draft-kampanakis-ml-kem-ikev2"/>
+    <seriesInfo name="Internet-Draft" value="draft-kampanakis-ml-kem-ikev2-04"/>
     <author fullname="Panos Kampanakis">
       <organization>Amazon Web Services</organization>
       <address>
