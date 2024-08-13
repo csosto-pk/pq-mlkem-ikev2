@@ -38,7 +38,7 @@
       <name>Introduction</name>
       <t>A Cryptanalytically-relevant Quantum Computer (CRQC), if it became a reality, could threaten today's public key establishment algorithms. Someone storing encrypted communications that use (Elliptic Curve) Diffie-Hellman ((EC)DH) to establish keys could decrypt these communications in the future after a CRQC became available to them. Such communications include Internet Key Exchange Protocol Version 2 (IKEv2).</t>
       <t>To address this concern, <xref target="RFC8784"/> introduced Post-quantum Preshared Keys as a temporary option for stirring a pre-shared key of adequate entropy in the derived Child SA encryption keys in order to provide quantum-resistance. </t>
-      <t>Since then, NIST has been working on a public project <xref target="NIST-PQ"/> for standardizing quantum-resistant algorithms which include key encapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization <xref target="I-D.draft-cfrg-schwabe-kyber-04"/>. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in <xref target="FIPS203-ipd"/>. ML-KEM was standardized in 2024 <xref target="FIPS203"/>. [ EDNOTE: Reference normatively <xref target="FIPS203"/> and remove the reference to <xref target="FIPS203-ipd"/>. ]</t>
+      <t>Since then, NIST has been working on a public project <xref target="NIST-PQ"/> for standardizing quantum-resistant algorithms which include key encapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization <xref target="I-D.draft-cfrg-schwabe-kyber-04"/>. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in 2024 <xref target="FIPS203"/>.</t>
      <t>As post-quantum publc keys and ciphertexts may make UDP packet sizes larger than common network Maximum Transport Units (MTU), <xref target="RFC9242"/> defined how to do additional large message exchanges by using new IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages which can be fragmented at the IKEv2 layer before causing IP fragmentation <xref target="RFC7383"/>. Because <xref target="RFC9242"/> messages can only be used after IKE_SA_INIT, if a PQ KEM does not fit inside IKE_SA_INIT without causing IP fragmentation, then it should be used after IKE_SA_INIT as an additional key establishment algorithm. <xref target="RFC9370"/> defined how to do up to seven additional key exchanges by using IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages and by deriving new SKEYSEED and KEYMAT key materials. This specification was created to enable new post-quantum key exchanges to be used in the derived IKE and Child SA keys and provide quantum resistance.</t>
     <t>This document describes how ML-KEM can be used as a quantum-resistant KEM in IKEv2 in an IKE_SA_INIT key exchange, or in one additional IKE_INTERMEDIATE or IKE_FOLLOWUP_KE key exchange after an initial IKE_SA_INIT or CREATE_CHILD_SA respectively. This approach of combining a quantum-resistant with a traditional algorithm, is commonly called Post-Quantum Traditional (PQ/T) Hybrid <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> key exchange and combines the security of a well-established algorithm with relatively new quantum-resistant algorithms. The result is a new Child SA key or an IKE or Child SA rekey with keying material which is safe against a CRQC. Another use of a PQ/T Hybrid key exchange in IKEv2 is for someone that wants to exchange keys using the high security parameter of ML-KEM. As these may not fit in commom network packet payload sizes, they will need to be sent in a IKE_FOLLOWUP_KE or CREATE_CHILD_SA key exchange which can be fragmented. This specification is a profile of <xref target="RFC9370"/> and registers new algorithm identifiers for ML-KEM key exchanges in IKEv2.</t>
       <section anchor="kems">
@@ -59,7 +59,7 @@
       </section>
       <section anchor="ml-kem">
         <name>ML-KEM</name>
-        <t>ML-KEM is a standardized lattice-based key encapsulation mechanism <xref target="FIPS203"/>. [  EDNOTE: Reference normatively <xref target="FIPS203"/> and remove the reference to <xref target="FIPS203-ipd"/>. ]</t>
+        <t>ML-KEM is a standardized lattice-based key encapsulation mechanism <xref target="FIPS203"/>.</t>
         <t>ML-KEM is using Module Learning with Errors as its underlying primitive which is a structured lattices variant that offers good performance and relatively small and balanced key and ciphertext sizes. ML-KEM was standardized with three parameters, ML-KEM-512, ML-KEM-768, and ML-KEM-1024. These were mapped by NIST to the three security levels defined in the NIST PQC Project, Level 1, 3, and 5. These levels correspond to the hardness of breaking AES-128, AES-192 and AES-256 respectively.</t>
         <t>This specification introduces ML-KEM-512, ML-KEM-768 and ML-KEM-1024 to IKEv2 key exchanges as conservative security level parameters which will not have material performance impact on IKEv2/IPsec tunnels which usually stay up for long periods of time and transfer sizable amounts of data. Since the ML-KEM-768 and ML-KEM-1024 public key and ciphertext sizes can exceed the typical network MTU, these key exchanges could require two or three network IP packets from both the initiator and the responder. </t>
       </section>
@@ -138,8 +138,8 @@ appear in all capitals, as shown here.</t>
       </section>
       <section anchor="receipent-tests">
         <name>Recipient Tests</name>
-        <t>Receiving and handling of malformed ML-KEM public key or ciphertext <bcp14>MUST</bcp14> follow the input validation described in <xref target="FIPS203"/>. [ EDNOTE: Confirm implicit rejection is still used after <xref target="FIPS203"/> is ratified or change this paragraph. ] In particular, entities receiving the ML-KEM public key to encapsulate to <bcp14>MUST</bcp14> perform the type and modulus checks in Sections 6.1 of <xref target="FIPS203"/> and reject the ML-KEM public key, if malformed. Entities receiving an ML-KEM ciphertext for decapsulation <bcp14>MUST</bcp14> perform the ciphertext and decapsulation key type checks in Section 6.2 of <xref target="FIPS203"/> and reject the ciphertext or key, if malformed. [ EDNOTE: Confirm implicit rejection is still used after <xref target="FIPS203"/> is ratified or change this paragraph. ] These checks could be performed separately before performing the encapsulation or decapsulation steps or be part of them. </t>
-        <t>Note that during decapsulation, ML-KEM uses implicit rejection which leads the decapsulating entity to implicitly reject the decapsulated shared secret by setting it to a hash of the ciphertext together with a random value stored in the ML-KEM secret when the re-encrypted shared secret does not match the original one. [ EDNOTE: Confirm implicit rejection is still used after <xref target="FIPS203"/> is ratified or change this paragraph. ]</t>
+        <t>Receiving and handling of malformed ML-KEM public key or ciphertext <bcp14>MUST</bcp14> follow the input validation described in <xref target="FIPS203"/>. In particular, entities receiving the ML-KEM public key to encapsulate to <bcp14>MUST</bcp14> perform the type and modulus checks in Sections 6.1 of <xref target="FIPS203"/> and reject the ML-KEM public key, if malformed. Entities receiving an ML-KEM ciphertext for decapsulation <bcp14>MUST</bcp14> perform the ciphertext and decapsulation key type checks in Section 6.2 of <xref target="FIPS203"/> and reject the ciphertext or key, if malformed. These checks could be performed separately before performing the encapsulation or decapsulation steps or be part of them. </t>
+        <t>Note that during decapsulation, ML-KEM uses implicit rejection which leads the decapsulating entity to implicitly reject the decapsulated shared secret by setting it to a hash of the ciphertext together with a random value stored in the ML-KEM secret when the re-encrypted shared secret does not match the original one.</t>
       </section>
     </section>
     <section anchor="security-considerations">
@@ -200,14 +200,15 @@ appear in all capitals, as shown here.</t>
       <name>References</name>
       <references anchor="sec-normative-references">
         <name>Normative References</name>
-        <reference anchor="FIPS203">
+        <reference anchor="FIPS203" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.ipd.pdf">
           <front>
-            <title>*** BROKEN REFERENCE ***</title>
+            <title>Module-Lattice-Based Key-Encapsulation Mechanism Standard</title>
             <author>
-              <organization/>
+              <organization>National Institute of Standards and Technology (NIST)</organization>
             </author>
-            <date/>
+            <date year="2024" month="August" day="13"/>
           </front>
+          <seriesInfo name="NIST" value="Federal Information Processing Standards"/>
         </reference>
         <reference anchor="RFC9242">
           <front>
@@ -289,16 +290,6 @@ appear in all capitals, as shown here.</t>
           </front>
 	  <seriesInfo name="Internet-Draft" value="draft-ietf-pquip-pqt-hybrid-terminology-02"/>
 	</reference>
-        <reference anchor="FIPS203-ipd" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.ipd.pdf">
-          <front>
-            <title>Module-Lattice-based Key-Encapsulation Mechanism Standard</title>
-            <author>
-              <organization>National Institute of Standards and Technology (NIST)</organization>
-            </author>
-            <date year="2023" month="August" day="24"/>
-          </front>
-          <seriesInfo name="NIST" value="Federal Information Processing Standards"/>
-        </reference>
         <reference anchor="NIST-PQ">
           <front>
             <title>Post-Quantum Cryptography</title>
