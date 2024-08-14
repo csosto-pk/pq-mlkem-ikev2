@@ -101,7 +101,7 @@ appear in all capitals, as shown here.</t>
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
 ]]></artwork>
 
-	<t><xref target="ke_payload_table"/> shows the Payload Length, Key Exchange Method Num identifier and the Key Exchange Data Size in Octets for Key Exchange Payloads from the initiator and the responder for the ML-KEM variants specific in this document. The public key and the ciphertext in the Key Exchange Data are encoded as raw bytes in little-endian encoding. [ EDNOTE: Confirm this makes sense. ] </t>
+	<t><xref target="ke_payload_table"/> shows the Payload Length, Key Exchange Method Num identifier and the Key Exchange Data Size in Octets for Key Exchange Payloads from the initiator and the responder for the ML-KEM variants specific in this document. The public key and the ciphertext in the Key Exchange Data are encoded as raw bytes arrays in little-endian encoding as defined in <xref target="FIPS203"/>.</t>
 	
 <table anchor="ke_payload_table">
   <name>Key Exchange Payload Fields</name>
@@ -200,7 +200,7 @@ appear in all capitals, as shown here.</t>
       <name>References</name>
       <references anchor="sec-normative-references">
         <name>Normative References</name>
-        <reference anchor="FIPS203" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.ipd.pdf">
+        <reference anchor="FIPS203" target="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.203.pdf">
           <front>
             <title>Module-Lattice-Based Key-Encapsulation Mechanism Standard</title>
             <author>
