@@ -67,11 +67,9 @@ This document describes how ML-KEM can be used as the quantum-safe KEM in IKEv2 
 
 In the context of the NIST Post-Quantum Cryptography Standardization Project {{NIST-PQ}}, key exchange algorithms are formulated as KEMs, which consist of three steps:
 
-- 'KeyGen() -> (pk, sk)': A probabilistic key generation algorithm, which generates a public key 'pk' and a secret key 'sk'.
-- 'Encaps(pk) -> (ct, ss)': A probabilistic encapsulation algorithm, which takes as input a public key 'pk' and outputs a ciphertext 'ct' and shared secret 'ss'.
-- 'Decaps(sk, ct) -> ss': A decapsulation algorithm, which takes as input a secret key 'sk' and ciphertext 'ct' and outputs a shared secret 'ss', or in some cases a distinguished error value.
-
-The main security property for KEMs standardized by NIST is indistinguishability under adaptive chosen ciphertext attacks (IND-CCA2), which means that shared secret values should be indistinguishable from random strings even given the ability to have arbitrary ciphertexts decapsulated. IND-CCA2 corresponds to security against an active attacker, and the public key / secret key pair can be treated as a long-term key or reused.  A weaker security notion is indistinguishability under chosen plaintext attacks (IND-CPA), which means that the shared secret values should be indistinguishable from random strings given a copy of the public key. IND-CPA roughly corresponds to security against a passive attacker, and sometimes corresponds to one-time key exchange.
+- 'KeyGen() -> (pk, sk)': A probabilistic key generation algorithm, which generates a public / encapsulation key 'pk' and a private / decapsulation key 'sk'. The resulting pk is sent to the responder in the KEi payload.
+- 'Encaps(pk) -> (ct, ss)': A probabilistic encapsulation algorithm, which takes as input a public key 'pk' (from the KEi) and outputs a ciphertext 'ct' and shared secret 'ss'. The 'ct' is sent back to intiator in the KEr payload.
+- 'Decaps(sk, ct) -> ss': A decapsulation algorithm, which takes as input a secret key 'sk' and ciphertext 'ct' (from the KEr) and outputs a shared secret 'ss', or in some rare cases a distinguished error value.
 
 ## ML-KEM
 
@@ -194,6 +192,8 @@ Note that at decapsulation, ML-KEM uses implicit rejection which leads the decap
 # Security Considerations
 
 All security considerations from {{!RFC9242}} and {{!RFC9370}} apply to the ML-KEM exchanges described in this specification. 
+
+The main security property for KEMs standardized by NIST is indistinguishability under adaptive chosen ciphertext attacks (IND-CCA2), which means that shared secret values should be indistinguishable from random strings even given the ability to have arbitrary ciphertexts decapsulated. IND-CCA2 corresponds to security against an active attacker, and the public key / secret key pair can be treated as a long-term key or reused.  A weaker security notion is indistinguishability under chosen plaintext attacks (IND-CPA), which means that the shared secret values should be indistinguishable from random strings given a copy of the public key. IND-CPA roughly corresponds to security against a passive attacker, and sometimes corresponds to one-time key exchange. As with (EC)DH keys today, generating an ephemeral key exchange keypair for ECDH and ML-KEM is still REQUIRED per connection by this specification (IND-CPA security). Implementations also MUST NOT reuse randomness in the generation of KEM ciphertexts.
 
 
 # IANA Considerations
