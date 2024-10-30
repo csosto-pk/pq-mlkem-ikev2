@@ -40,7 +40,7 @@
       <t>To address this concern, the Mixing Preshared Keys in IKEv2 specification <xref target="RFC8784"/> introduced Post-quantum Preshared Keys as a temporary option for stirring a pre-shared key of adequate entropy in the derived Child SA encryption keys in order to provide quantum-resistance. This specification can be used in conjunction with PPK as defined in <xref target="RFC8784"/>. </t>
       <t>Since then, NIST has been working on a public project <xref target="NIST-PQ"/> for standardizing quantum-resistant algorithms which include key encapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization <xref target="I-D.draft-cfrg-schwabe-kyber-04"/>. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in 2024 <xref target="FIPS203"/>.</t>
      <t>As post-quantum publc keys and ciphertexts may make UDP packet sizes larger than common network Maximum Transport Units (MTU), the Intermediate Exchange in IKEv2 document <xref target="RFC9242"/> defined how to do additional large message exchanges by using new IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages which can be fragmented at the IKEv2 layer before causing IP fragmentation <xref target="RFC7383"/>. Because <xref target="RFC9242"/> messages can only be used after IKE_SA_INIT, if a PQ KEM does not fit inside IKE_SA_INIT without causing IP fragmentation, then it should be used after IKE_SA_INIT as an additional key establishment algorithm. The Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/> defined how to do up to seven additional key exchanges by using IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages and by deriving new SKEYSEED and KEYMAT key materials. This specification was created to enable new post-quantum key exchanges to be used in the derived IKE and Child SA keys and provide quantum resistance.</t>
-    <t>This document describes how ML-KEM can be used as a quantum-resistant KEM in IKEv2 in an IKE_SA_INIT key exchange, or in one additional IKE_INTERMEDIATE or IKE_FOLLOWUP_KE key exchange after an initial IKE_SA_INIT or CREATE_CHILD_SA respectively. This approach of combining a quantum-resistant with a traditional algorithm, is commonly called Post-Quantum Traditional (PQ/T) Hybrid <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> key exchange and combines the security of a well-established algorithm with relatively new quantum-resistant algorithms. The result is a new Child SA key or an IKE or Child SA rekey with keying material which is safe against a CRQC. Another use of a PQ/T Hybrid key exchange in IKEv2 is for someone that wants to exchange keys using the high security parameter of ML-KEM. As these may not fit in commom network packet payload sizes, they will need to be sent in a IKE_FOLLOWUP_KE or CREATE_CHILD_SA key exchange which can be fragmented. This specification is a profile of the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/> and registers new algorithm identifiers for ML-KEM key exchanges in IKEv2.</t>
+    <t>This document describes how ML-KEM can be used as a quantum-resistant KEM in IKEv2 in an IKE_SA_INIT key exchange, or in one additional IKE_INTERMEDIATE or IKE_FOLLOWUP_KE key exchange after an initial IKE_SA_INIT or CREATE_CHILD_SA respectively. This approach of combining a quantum-resistant with a traditional algorithm, is commonly called Post-Quantum Traditional (PQ/T) Hybrid <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-04"/> key exchange and combines the security of a well-established algorithm with relatively new quantum-resistant algorithms. The result is a new Child SA key or an IKE or Child SA rekey with keying material which is safe against a CRQC. Another use of a PQ/T Hybrid key exchange in IKEv2 is for someone that wants to exchange keys using the high security parameter of ML-KEM. As these may not fit in commom network packet payload sizes, they will need to be sent in a IKE_FOLLOWUP_KE or CREATE_CHILD_SA key exchange which can be fragmented. This specification is a profile of the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/> and registers new algorithm identifiers for ML-KEM key exchanges in IKEv2.</t>
       <section anchor="kems">
         <name>KEMs</name>
         <t>In the context of the NIST Post-Quantum Cryptography Standardization Project <xref target="NIST-PQ"/>, key exchange algorithms are formulated as KEMs, which consist of three steps:</t>
@@ -80,7 +80,7 @@ appear in all capitals, as shown here.</t>
 			The ML-KEM shared secret is stirred into new keying material SK_d, SK_a[i/r], and SK_e[i/r] as defined in Section 2.2.2 of the Multiple Key Exchanges in IKEv2 document <xref target="RFC9370"/>. Afterwards the peers continue to the IKE_AUTH exchange phase as defined in Section 3.3.2 of the Intermediate Exchange in IKEv2 specification <xref target="RFC9242"/>.</t>
 		<t>ML-KEM can also be used to create or rekey a Child SA or rekey the IKE SA by using a IKE_FOLLOWUP_KE message after a CREATE_CHILD_SA message. After the ML-KEM additional key exchange KE(1) has taken place using and IKE_FOLLOWUP_KE exchange, the IKE or Child SA are rekeyed by stirring the new ML-KEM shared secret SK(1) in SKEYSEED and KEYMAT as specified in Section 2.2.4 of <xref target="RFC9370"/>.</t>
 		<t>ML-KEM-768 and ML-KEM-1024 public keys and ciphertexts may make UDP packet sizes larger typical network MTUs (1500 bytes). Thus, IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages carrying ML-KEM public keys and ciphertexts may be IKEv2 fragmented as per the IKEv2 Message Fragmentation specification <xref target="RFC7383"/>. </t>
-		<t>Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-02"/> scenario, ML-KEM-512 and ML-KEM-768 Key Exchange Method identifiers TBD35 and TBD36 respectively <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-resistant-only key exchange. The encapsulation key and ciphertext sizes for these ML-KEM parameters may not push the UDP packet to size larger than typical network MTUs of 1500 bytes. ML-KEM-1024 Key Exchange Method identifier TBD37 <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT messages which could exceed typical network MTUs and cannot be IKEv2 fragmented. </t>
+		<t>Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-04"/> scenario, ML-KEM-512 and ML-KEM-768 Key Exchange Method identifiers TBD35 and TBD36 respectively <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-resistant-only key exchange. The encapsulation key and ciphertext sizes for these ML-KEM parameters may not push the UDP packet to size larger than typical network MTUs of 1500 bytes. ML-KEM-1024 Key Exchange Method identifier TBD37 <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT messages which could exceed typical network MTUs and cannot be IKEv2 fragmented. </t>
       </section>
       <section anchor="key-exchange-payload">
         <name>Key Exchange Payload</name>
@@ -283,16 +283,22 @@ appear in all capitals, as shown here.</t>
       </references>
       <references anchor="sec-informative-references">
         <name>Informative References</name>
-	<reference anchor="I-D.ietf-pquip-pqt-hybrid-terminology-02" target="https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqt-hybrid-terminology-02">
-	  <front>
-	    <title>Terminology for Post-Quantum Traditional Hybrid Schemes</title>
-	    <author initials="F." surname="D" fullname="Florence D">
-	      <organization>UK National Cyber Security Centre</organization>
-	    </author>
-	    <date month="February" day="2" year="2024"/>
+        <reference anchor="I-D.ietf-pquip-pqt-hybrid-terminology-04" target="https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqt-hybrid-terminology-04">
+          <front>
+            <title>Terminology for Post-Quantum Traditional Hybrid Schemes</title>
+            <author initials="F." surname="D" fullname="Florence D">
+              <organization>UK National Cyber Security Centre</organization>
+            </author>
+            <author initials="M." surname="P" fullname="Michael P">
+              <organization>UK National Cyber Security Centre</organization>
+            </author>
+            <author initials="B." surname="Hale" fullname="Britta Hale">
+              <organization>Naval Postgraduate School</organization>
+            </author>
+            <date month="September" day="10" year="2024"/>
           </front>
-	  <seriesInfo name="Internet-Draft" value="draft-ietf-pquip-pqt-hybrid-terminology-02"/>
-	</reference>
+          <seriesInfo name="Internet-Draft" value="draft-ietf-pquip-pqt-hybrid-terminology-04"/>
+        </reference>
         <reference anchor="NIST-PQ">
           <front>
             <title>Post-Quantum Cryptography</title>
