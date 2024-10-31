@@ -1,0 +1,560 @@
+
+
+
+
+IPSECME                                                    P. Kampanakis
+Internet-Draft                                                 G. Ravago
+Intended status: Standards Track                     Amazon Web Services
+Expires: 4 May 2025                                      31 October 2024
+
+
+    Post-quantum Hybrid Key Exchange with ML-KEM in the Internet Key
+                  Exchange Protocol Version 2 (IKEv2)
+                    draft-kampanakis-ml-kem-ikev2-09
+
+Abstract
+
+   NIST recently standardized ML-KEM, a new key encapsulation mechanism,
+   which can be used for quantum-resistant key establishment.  This
+   draft specifies how to use ML-KEM as an additional key exchange in
+   IKEv2 along with traditional key exchanges.  This Post-Quantum
+   Traditional Hybrid Key Encapsulation Mechanism approach allows for
+   negotiating IKE and Child SA keys which are safe against
+   cryptanalytically-relevant quantum computers and theoretical
+   weaknesses in ML-KEM.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 4 May 2025.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 1]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+     1.1.  KEMs  . . . . . . . . . . . . . . . . . . . . . . . . . .   3
+     1.2.  ML-KEM  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     1.3.  Conventions and Definitions . . . . . . . . . . . . . . .   4
+   2.  ML-KEM in IKEv2 . . . . . . . . . . . . . . . . . . . . . . .   4
+     2.1.  ML-KEM in IKE_INTERMEDIATE or CREATE_CHILD_SA messages  .   4
+     2.2.  Key Exchange Payload  . . . . . . . . . . . . . . . . . .   6
+     2.3.  Recipient Tests . . . . . . . . . . . . . . . . . . . . .   7
+   3.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
+   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   8
+   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
+     5.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
+     5.2.  Informative References  . . . . . . . . . . . . . . . . .   9
+   Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . .  10
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  10
+
+1.  Introduction
+
+   A Cryptanalytically-relevant Quantum Computer (CRQC), if it became a
+   reality, could threaten today's public key establishment algorithms.
+   Someone storing encrypted communications that use (Elliptic Curve)
+   Diffie-Hellman ((EC)DH) to establish keys could decrypt these
+   communications in the future after a CRQC became available to them.
+   Such communications include Internet Key Exchange Protocol Version 2
+   (IKEv2).
+
+   To address this concern, the Mixing Preshared Keys in IKEv2
+   specification [RFC8784] introduced Post-quantum Preshared Keys as a
+   temporary option for stirring a pre-shared key of adequate entropy in
+   the derived Child SA encryption keys in order to provide quantum-
+   resistance.  This specification can be used in conjunction with PPK
+   as defined in [RFC8784].
+
+   Since then, NIST has been working on a public project [NIST-PQ] for
+   standardizing quantum-resistant algorithms which include key
+   encapsulation and signatures.  At the end of Round 3, they picked
+   Kyber as the first Key Encapsulation Mechanism (KEM) for
+   standardization [I-D.draft-cfrg-schwabe-kyber-04].  Kyber was then
+   standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-
+   KEM) in 2024 [FIPS203].
+
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 2]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+   As post-quantum public keys and ciphertexts may make UDP packet sizes
+   larger than common network Maximum Transport Units (MTU), the
+   Intermediate Exchange in IKEv2 document [RFC9242] defined how to do
+   additional large message exchanges by using new IKE_INTERMEDIATE or
+   IKE_FOLLOWUP_KE messages which can be fragmented at the IKEv2 layer
+   before causing IP fragmentation [RFC7383].  Because [RFC9242]
+   messages can only be used after IKE_SA_INIT, if a PQ KEM does not fit
+   inside IKE_SA_INIT without causing IP fragmentation, then it should
+   be used after IKE_SA_INIT as an additional key establishment
+   algorithm.  The Multiple Key Exchanges in IKEv2 specification
+   [RFC9370] defined how to do up to seven additional key exchanges by
+   using IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages and by deriving
+   new SKEYSEED and KEYMAT key materials.  This specification was
+   created to enable new post-quantum key exchanges to be used in the
+   derived IKE and Child SA keys and provide quantum resistance.
+
+   This document describes how ML-KEM can be used as a quantum-resistant
+   KEM in IKEv2 in an IKE_SA_INIT key exchange, or in one additional
+   IKE_INTERMEDIATE or IKE_FOLLOWUP_KE key exchange after an initial
+   IKE_SA_INIT or CREATE_CHILD_SA respectively.  This approach of
+   combining a quantum-resistant with a traditional algorithm, is
+   commonly called Post-Quantum Traditional (PQ/T) Hybrid
+   [I-D.ietf-pquip-pqt-hybrid-terminology-04] key exchange and combines
+   the security of a well-established algorithm with relatively new
+   quantum-resistant algorithms.  The result is a new Child SA key or an
+   IKE or Child SA rekey with keying material which is safe against a
+   CRQC.  Another use of a PQ/T Hybrid key exchange in IKEv2 is for
+   someone that wants to exchange keys using the high security parameter
+   of ML-KEM.  As these may not fit in common network packet payload
+   sizes, they will need to be sent in a IKE_FOLLOWUP_KE or
+   CREATE_CHILD_SA key exchange which can be fragmented.  This
+   specification is a profile of the Multiple Key Exchanges in IKEv2
+   specification [RFC9370] and registers new algorithm identifiers for
+   ML-KEM key exchanges in IKEv2.
+
+1.1.  KEMs
+
+   In the context of the NIST Post-Quantum Cryptography Standardization
+   Project [NIST-PQ], key exchange algorithms are formulated as KEMs,
+   which consist of three steps:
+
+   *  'KeyGen() -> (pk, sk)': A probabilistic key generation algorithm,
+      which generates a public / encapsulation key 'pk' and a private /
+      decapsulation key 'sk'.  The resulting pk is sent to the responder
+      in the KEi payload.
+
+
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 3]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+   *  'Encaps(pk) -> (ct, ss)': A probabilistic encapsulation algorithm,
+      which takes as input a public key 'pk' (from the KEi) and outputs
+      a ciphertext 'ct' and shared secret 'ss'.  The 'ct' is sent back
+      to intiator in the KEr payload.
+
+   *  'Decaps(sk, ct) -> ss': A decapsulation algorithm, which takes as
+      input a secret key 'sk' and ciphertext 'ct' (from the KEr) and
+      outputs a shared secret 'ss', or in some rare cases a
+      distinguished error value.
+
+1.2.  ML-KEM
+
+   ML-KEM is a standardized lattice-based key encapsulation mechanism
+   [FIPS203].  It uses Module Learning with Errors as its underlying
+   primitive which is a structured lattices variant that offers good
+   performance and relatively small and balanced key and ciphertext
+   sizes.  ML-KEM was standardized with three parameters, ML-KEM-512,
+   ML-KEM-768, and ML-KEM-1024.  These were mapped by NIST to the three
+   security levels defined in the NIST PQC Project, Level 1, 3, and 5.
+   These levels correspond to the hardness of breaking AES-128, AES-192
+   and AES-256 respectively.
+
+   This specification introduces ML-KEM-512, ML-KEM-768 and ML-KEM-1024
+   to IKEv2 key exchanges as conservative security level parameters
+   which will not have material performance impact on IKEv2/IPsec
+   tunnels which usually stay up for long periods of time and transfer
+   sizable amounts of data.  Since the ML-KEM-768 and ML-KEM-1024 public
+   key and ciphertext sizes can exceed the typical network MTU, these
+   key exchanges could require two or three network IP packets from both
+   the initiator and the responder.
+
+1.3.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+2.  ML-KEM in IKEv2
+
+2.1.  ML-KEM in IKE_INTERMEDIATE or CREATE_CHILD_SA messages
+
+   ML-KEM key exchanges can be negotiated in IKE_INTERMEDIATE or
+   IKE_FOLLOWUP_KE messages as defined in the Multiple Key Exchanges in
+   IKEv2 specification [RFC9370].  We summarize them here for
+   completeness.
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 4]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+   Section 2.2.2 of [RFC9370] specifies that KEi(0), KEr(0) are regular
+   key exchange messages in the first IKE_SA_INIT exchange which end up
+   generating a set of keying material, SK_d, SK_a[i/r], and SK_e[i/r].
+   The peers then perform an IKE_INTERMEDIATE exchange, carrying new Key
+   Exchange payloads.  These are protected with the SK_e[i/r] and
+   SK_a[i/r] keys which were derived from the IKE_SA_INIT as per
+   Section 3.3.1 of the Intermediate Exchange in IKEv2 document
+   [RFC9242].  The initiator generates an ML-KEM keypair (sk, pk) using
+   KeyGen(), and sends the public key (pk) to the responder inside a
+   KEi(1) payload.  The responder will encapsulate a shared secret ss
+   using Encaps(pk) and the resulting ciphertext (ct) is sent to
+   initiator using the KEr(1).  After the initiator receives KEr(1), it
+   will decapsulate it using Decaps(sk, ct).  Both Encaps and Decaps
+   return the shared secret (ss) and both peers have a common shared
+   secret SK(1) at the end of this KE(1) exchange.  The ML-KEM shared
+   secret is stirred into new keying material SK_d, SK_a[i/r], and
+   SK_e[i/r] as defined in Section 2.2.2 of the Multiple Key Exchanges
+   in IKEv2 document [RFC9370].  Afterwards the peers continue to the
+   IKE_AUTH exchange phase as defined in Section 3.3.2 of the
+   Intermediate Exchange in IKEv2 specification [RFC9242].
+
+   ML-KEM can also be used to create or rekey a Child SA or rekey the
+   IKE SA by using a IKE_FOLLOWUP_KE message after a CREATE_CHILD_SA
+   message.  After the ML-KEM additional key exchange KE(1) has taken
+   place using and IKE_FOLLOWUP_KE exchange, the IKE or Child SA are
+   rekeyed by stirring the new ML-KEM shared secret SK(1) in SKEYSEED
+   and KEYMAT as specified in Section 2.2.4 of [RFC9370].
+
+   ML-KEM-768 and ML-KEM-1024 public keys and ciphertexts may make UDP
+   packet sizes larger typical network MTUs (1500 bytes).  Thus,
+   IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages carrying ML-KEM public
+   keys and ciphertexts may be IKEv2 fragmented as per the IKEv2 Message
+   Fragmentation specification [RFC7383].
+
+   Although, this document focuses on using ML-KEM as the second key
+   exchange in a PQ/T Hybrid KEM
+   [I-D.ietf-pquip-pqt-hybrid-terminology-04] scenario, ML-KEM-512 and
+   ML-KEM-768 Key Exchange Method identifiers TBD35 and TBD36
+   respectively MAY be used in IKE_SA_INIT as a quantum-resistant-only
+   key exchange.  The encapsulation key and ciphertext sizes for these
+   ML-KEM parameters may not push the UDP packet to size larger than
+   typical network MTUs of 1500 bytes.  ML-KEM-1024 Key Exchange Method
+   identifier TBD37 SHOULD NOT be used in IKE_SA_INIT messages which
+   could exceed typical network MTUs and cannot be IKEv2 fragmented.
+
+
+
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 5]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+2.2.  Key Exchange Payload
+
+   The KE payload is shown below and the fields inside it has meaning as
+   defined in Section 3.4 of the IKEv2 standard [RFC7296]:
+
+                        1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   | Next Payload  |C|  RESERVED   |         Payload Length        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Key Exchange Method Num    |           RESERVED             |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                       Key Exchange Data                       ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   The Key Exchange Data from the initiator to the responder contains
+   the public key (pk) from the KeyGen() operation encoded as a raw byte
+   array (i.e., output of ByteEncode) as defined in Section 7.1 of
+   Module-Lattice-Based KEM standard [FIPS203].
+
+   The Key Exchange Data from the responder to the initiator contains
+   the ciphertext (ct) from the Encaps operation encoded as a raw byte
+   array.
+
+   Table 1 shows the Payload Length, Key Exchange Method Num identifier
+   and the Key Exchange Data Size in octets for Key Exchange Payloads
+   from the initiator and the responder for the ML-KEM variants
+   specified in this document.
+
+     +=============+================+============+===================+
+     |     KEM     | Payload Length |    Key     |    Data Size in   |
+     |             |  (initiator /  |  Exchange  | Octets (initiator |
+     |             |   responder)   | Method Num |    / responder)   |
+     +=============+================+============+===================+
+     |  ML-KEM-512 |   808 / 776    |   TBD35    |     800 / 768     |
+     +-------------+----------------+------------+-------------------+
+     |  ML-KEM-768 |  1192 / 1096   |   TBD36    |    1184 / 1088    |
+     +-------------+----------------+------------+-------------------+
+     | ML-KEM-1024 |  1576 / 1576   |   TBD37    |    1568 / 1568    |
+     +-------------+----------------+------------+-------------------+
+
+                    Table 1: Key Exchange Payload Fields
+
+
+
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 6]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+2.3.  Recipient Tests
+
+   Receiving and handling of malformed ML-KEM public keys or ciphertexts
+   SHOULD follow the input validation described in the Module-Lattice-
+   Based KEM standard [FIPS203].
+
+   Responders SHOULD perform the checks specified in section 7.2 of the
+   Module-Lattice-Based KEM standard [FIPS203] before the Encaps(pk)
+   operation.  If the checks fail, the responder SHOULD send a Notify
+   payload of type INVALID_SYNTAX as a response to the request from
+   initiator.
+
+   Initiators SHOULD perform the Ciphertext type check specified in
+   section 7.3 of the Module-Lattice-Based KEM standard [FIPS203] before
+   the Decaps(sk, ct) operation.  If the check fails, the initiator MUST
+   reject the ciphertext and MUST fail the exchange.  In this case, the
+   initiator MAY send a Notify payload of type INVALID_SYNTAX to the
+   responder as a separate INFORMATIONAL exchange, usually with no other
+   payloads.  This is an exception for the general rule of not starting
+   new exchanges based on errors in responses.
+
+   Note that during decapsulation, ML-KEM uses implicit rejection which
+   leads the decapsulating entity to implicitly reject the decapsulated
+   shared secret by setting it to a hash of the ciphertext together with
+   a random value stored in the ML-KEM secret when the re-encrypted
+   shared secret does not match the original one.
+
+3.  Security Considerations
+
+   All security considerations from [RFC9242] and [RFC9370] apply to the
+   ML-KEM exchanges described in this specification.
+
+   The main security property for KEMs standardized by NIST is
+   indistinguishability under adaptive chosen ciphertext attacks (IND-
+   CCA2), which means that shared secret values should be
+   indistinguishable from random strings even given the ability to have
+   arbitrary ciphertexts decapsulated.  IND-CCA2 corresponds to security
+   against an active attacker, and the public key / secret key pair can
+   be treated as a long-term key or reused.  A weaker security notion is
+   indistinguishability under chosen plaintext attacks (IND-CPA), which
+   means that the shared secret values should be indistinguishable from
+   random strings given a copy of the public key.  IND-CPA roughly
+   corresponds to security against a passive attacker, and sometimes
+   corresponds to one-time key exchange.  As with (EC)DH keys today,
+   generating an ephemeral key exchange keypair for ECDH and ML-KEM is
+   still REQUIRED per connection by this specification (IND-CPA
+   security).
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 7]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+   The ML-KEM public key generated by the initiator and the ciphertext
+   generated by the responder use randomness (usually a seed) which MUST
+   be independent of any other random seed used in the IKEv2
+   negotiation.  For example, at the initiator, the ML-KEM and (EC)DH
+   keypairs used in a PQ/T Hybrid key exchange should not be generated
+   from the same seed.
+
+   SKEYSEED and KEYMAT in this specification are generated from PQ/T
+   Hybrid key exchanges by using shared secrets, nonces, and SPIs with a
+   pseudorandom function as defined in [RFC9370].  As discussed in
+   [PQ-PROOF2], such PQ/T Hybrid key derivations are IND-CPA, but not
+   proven to be IND-CCA2 secure although the keys could be reused if the
+   nonces are never reused.
+
+4.  IANA Considerations
+
+   IANA is requested to assign three values for the names "mlkem-512",
+   "mlkem-768", and "mlkem-1024" in the IKEv2 "Transform Type 4 - Key
+   Exchange Method Transform IDs" and has listed this document as the
+   reference.  The Recipient Tests field should also point to this
+   document:
+
+    +=========+=============+========+===================+============+
+    | Number  | Name        | Status | Recipient Tests   | Reference  |
+    +=========+=============+========+===================+============+
+    | TBD35   | ml-kem-512  |        | [TBD, this draft, | [TBD, this |
+    |         |             |        | Section 2.3],     | draft]     |
+    +---------+-------------+--------+-------------------+------------+
+    | TBD36   | ml-kem-768  |        | [TBD, this draft, | [TBD, this |
+    |         |             |        | Section 2.3],     | draft]     |
+    +---------+-------------+--------+-------------------+------------+
+    | TBD37   | ml-kem-1024 |        | [TBD, this draft, | [TBD, this |
+    |         |             |        | Section 2.3],     | draft]     |
+    +---------+-------------+--------+-------------------+------------+
+    | 38-1023 | Unassigned  |        |                   |            |
+    +---------+-------------+--------+-------------------+------------+
+
+       Table 2: Updates to the IANA "Transform Type 4 - Key Exchange
+                        Method Transform IDs" table
+
+5.  References
+
+5.1.  Normative References
+
+
+
+
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 8]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+   [FIPS203]  National Institute of Standards and Technology (NIST),
+              "Module-Lattice-Based Key-Encapsulation Mechanism
+              Standard", NIST Federal Information Processing Standards,
+              13 August 2024, <https://nvlpubs.nist.gov/nistpubs/FIPS/
+              NIST.FIPS.203.pdf>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC7296]  Kaufman, C., Hoffman, P., Nir, Y., Eronen, P., and T.
+              Kivinen, "Internet Key Exchange Protocol Version 2
+              (IKEv2)", STD 79, RFC 7296, DOI 10.17487/RFC7296, October
+              2014, <https://www.rfc-editor.org/rfc/rfc7296>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC9242]  Smyslov, V., "Intermediate Exchange in the Internet Key
+              Exchange Protocol Version 2 (IKEv2)", RFC 9242,
+              DOI 10.17487/RFC9242, May 2022,
+              <https://www.rfc-editor.org/rfc/rfc9242>.
+
+   [RFC9370]  Tjhai, CJ., Tomlinson, M., Bartlett, G., Fluhrer, S., Van
+              Geest, D., Garcia-Morchon, O., and V. Smyslov, "Multiple
+              Key Exchanges in the Internet Key Exchange Protocol
+              Version 2 (IKEv2)", RFC 9370, DOI 10.17487/RFC9370, May
+              2023, <https://www.rfc-editor.org/rfc/rfc9370>.
+
+5.2.  Informative References
+
+   [I-D.draft-cfrg-schwabe-kyber-04]
+              Schwabe, P. and B. Westerbaan, "Kyber Post-Quantum KEM",
+              Work in Progress, Internet-Draft, draft-cfrg-schwabe-
+              kyber-04, 2 January 2024,
+              <https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-
+              kyber-04>.
+
+   [I-D.ietf-pquip-pqt-hybrid-terminology-04]
+              D, F., P, M., and B. Hale, "Terminology for Post-Quantum
+              Traditional Hybrid Schemes", Work in Progress, Internet-
+              Draft, draft-ietf-pquip-pqt-hybrid-terminology-04, 10
+              September 2024, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-pquip-pqt-hybrid-terminology-04>.
+
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                   [Page 9]
+
+Internet-Draft                ML-KEM IKEv2                  October 2024
+
+
+   [NIST-PQ]  National Institute of Standards and Technology (NIST),
+              "Post-Quantum Cryptography",
+              https://csrc.nist.gov/projects/post-quantum-cryptography .
+
+   [PQ-PROOF2]
+              Petcher, A. and M. Campagna, "Security of Hybrid Key
+              Establishment using Concatenation", 2023,
+              <https://eprint.iacr.org/2023/972>.
+
+   [RFC7383]  Smyslov, V., "Internet Key Exchange Protocol Version 2
+              (IKEv2) Message Fragmentation", RFC 7383,
+              DOI 10.17487/RFC7383, November 2014,
+              <https://www.rfc-editor.org/rfc/rfc7383>.
+
+   [RFC8784]  Fluhrer, S., Kampanakis, P., McGrew, D., and V. Smyslov,
+              "Mixing Preshared Keys in the Internet Key Exchange
+              Protocol Version 2 (IKEv2) for Post-quantum Security",
+              RFC 8784, DOI 10.17487/RFC8784, June 2020,
+              <https://www.rfc-editor.org/rfc/rfc8784>.
+
+Acknowledgments
+
+   The authors would like to thank Valery Smyslov, Graham Bartlett,
+   Scott Fluhrer, Ben S, and Leonie Bruckert for their valuable
+   feedback.
+
+Authors' Addresses
+
+   Panos Kampanakis
+   Amazon Web Services
+   Email: kpanos@amazon.com
+
+
+   Gerardo Ravago
+   Amazon Web Services
+   Email: gcr@amazon.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kampanakis & Ravago        Expires 4 May 2025                  [Page 10]
