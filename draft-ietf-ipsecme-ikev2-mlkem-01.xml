@@ -358,7 +358,7 @@ appear in all capitals, as shown here.</t>
             <date year="2023"/>
           </front>
         </reference>
-        <reference anchor="DOWN-RES" target="https://eprint.iacr.org/2016/072">
+        <reference anchor="DOWN-RES" target="https://ieeexplore.ieee.org/document/7546520">
           <front>
             <title>Downgrade Resilience in Key-Exchange Protocols</title>
             <author initials="K." surname="Bhargavan" fullname="Karthikeyan Bhargavan">
