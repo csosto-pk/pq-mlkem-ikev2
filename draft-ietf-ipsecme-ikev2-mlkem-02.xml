@@ -442,7 +442,7 @@ appear in all capitals, as shown here.</t>
 
 <section numbered="false" anchor="acknowledgments">
       <name>Acknowledgments</name>
-      <t>The authors would like to thank Valery Smyslov, Graham Bartlett, Scott Fluhrer, Ben S, Leonie Bruckert, and Gerardo Ravago for their valuable feedback.</t>
+      <t>The authors would like to thank Valery Smyslov, Graham Bartlett, Scott Fluhrer, Ben S, Leonie Bruckert, Tero Kivinen, Wang Guilin, Michael Richardson, and Gerardo Ravago for their valuable feedback. Special thanks to Chris Patton for bringing up the downgrade issue.</t>
     </section>
   </back>
 </rfc>
