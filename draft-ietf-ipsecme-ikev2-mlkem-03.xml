@@ -32,9 +32,9 @@
       <name>Introduction</name>
       <t>A Cryptanalytically-relevant Quantum Computer (CRQC), if it became a reality, could threaten today's public key establishment algorithms. Someone storing encrypted communications that use (Elliptic Curve) Diffie-Hellman ((EC)DH) to establish keys could decrypt these communications in the future after a CRQC became available to them. Such communications include Internet Key Exchange Protocol Version 2 (IKEv2).</t>
       <t>To address this concern, the Mixing Preshared Keys in IKEv2 specification <xref target="RFC8784"/> introduced Post-quantum Preshared Keys (PPK) as a temporary option for stirring a pre-shared key of adequate entropy in the derived Child SA encryption keys in order to provide quantum-resistance. This specification can be used in conjunction with PPK as defined in <xref target="RFC8784"/>. <xref target="I-D.ietf-ipsecme-ikev2-qr-alt"/> also enables a negotiation of PPK and ML-KEM in a single message without an aditional round-trip penalty.</t>
-      <t>Since then, NIST has been working on a public project <xref target="NIST-PQ"/> for standardizing quantum-resistant algorithms which include key encapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization <xref target="I-D.draft-cfrg-schwabe-kyber-04"/>. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in 2024 <xref target="FIPS203"/>.</t>
+      <t>Since then, NIST has been working on a public project <xref target="NIST-PQ"/> for standardizing quantum-resistant algorithms which include key encapsulation and signatures. At the end of Round 3, they picked Kyber as the first Key Encapsulation Mechanism (KEM) for standardization <xref target="I-D.cfrg-schwabe-kyber"/>. Kyber was then standardized as Module-Lattice-based Key-Encapsulation Mechanism (ML-KEM) in 2024 <xref target="FIPS203"/>.</t>
      <t>As post-quantum public keys and ciphertexts may make UDP packet sizes larger than common network Maximum Transport Units (MTU), the Intermediate Exchange in IKEv2 document <xref target="RFC9242"/> defined how to do additional large message exchanges by using new IKE_INTERMEDIATE messages. IKE_INTERMEDIATE messages can only be used after IKE_SA_INIT. The Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/> defined how to do up to seven additional key exchanges by using IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages and by deriving new SKEYSEED and KEYMAT key materials. These messages can be fragmented at the IKEv2 layer before causing IP fragmentation <xref target="RFC7383"/>. If a post-quantum KEM does not fit inside IKE_SA_INIT without causing IP fragmentation, then it should be used after IKE_SA_INIT in an IKE_INTERMEDIATE or IKE_FOLLOWUP_KE message as an additional key establishment algorithm.</t>
-    <t>This document describes how ML-KEM can be used as a quantum-resistant KEM in IKEv2 in an IKE_SA_INIT key exchange, or in one additional IKE_INTERMEDIATE or IKE_FOLLOWUP_KE key exchange after an initial IKE_SA_INIT or CREATE_CHILD_SA respectively. This approach of combining a quantum-resistant with a traditional algorithm, is commonly called Post-Quantum Traditional (PQ/T) Hybrid <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-04"/> key exchange and combines the security of a well-established algorithm with relatively new quantum-resistant algorithms. The result is a new Child SA key or an IKE or Child SA rekey with keying material which is safe against a CRQC. Another use of a PQ/T Hybrid key exchange in IKEv2 is for someone that wants to exchange keys using the high security parameter of ML-KEM. As these may not fit in common network packet payload sizes, they will need to be sent in a IKE_FOLLOWUP_KE or CREATE_CHILD_SA key exchange which can be fragmented. This specification is a profile of the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/> and registers new algorithm identifiers for ML-KEM key exchanges in IKEv2.</t>
+    <t>This document describes how ML-KEM can be used as a quantum-resistant KEM in IKEv2 in an IKE_SA_INIT key exchange, or in one additional IKE_INTERMEDIATE or IKE_FOLLOWUP_KE key exchange after an initial IKE_SA_INIT or CREATE_CHILD_SA respectively. This approach of combining a quantum-resistant with a traditional algorithm, is commonly called Post-Quantum Traditional (PQ/T) Hybrid <xref target="I-D.ietf-pquip-pqt-hybrid-terminology"/> key exchange and combines the security of a well-established algorithm with relatively new quantum-resistant algorithms. The result is a new Child SA key or an IKE or Child SA rekey with keying material which is safe against a CRQC. Another use of a PQ/T Hybrid key exchange in IKEv2 is for someone that wants to exchange keys using the high security parameter of ML-KEM. As these may not fit in common network packet payload sizes, they will need to be sent in a IKE_FOLLOWUP_KE or CREATE_CHILD_SA key exchange which can be fragmented. This specification is a profile of the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/> and registers new algorithm identifiers for ML-KEM key exchanges in IKEv2.</t>
       <section anchor="kems">
         <name>KEMs</name>
         <t>In the context of the NIST Post-Quantum Cryptography Standardization Project <xref target="NIST-PQ"/>, key exchange algorithms are formulated as KEMs, which consist of three steps:</t>
@@ -74,7 +74,7 @@ appear in all capitals, as shown here.</t>
 			The ML-KEM shared secret is stirred into new keying material SK_d, SK_a[i/r], and SK_e[i/r] as defined in Section 2.2.2 of the Multiple Key Exchanges in IKEv2 document <xref target="RFC9370"/>. Afterwards the peers can perform more key exchanges if necessary and then continue to the IKE_AUTH exchange phase as defined in Section 3.3.2 of the Intermediate Exchange in IKEv2 specification <xref target="RFC9242"/>.</t>
 		<t>ML-KEM can also be used to create or rekey a Child SA or rekey the IKE SA by using a IKE_FOLLOWUP_KE exchange after a CREATE_CHILD_SA. After the ML-KEM additional key exchange KE(1) has taken place using and IKE_FOLLOWUP_KE exchange, the IKE or Child SA are rekeyed by stirring the new ML-KEM shared secret SK(1) in SKEYSEED and KEYMAT as specified in Section 2.2.4 of <xref target="RFC9370"/>.</t>
 		<t>ML-KEM-768 and ML-KEM-1024 public keys and ciphertexts may make UDP packet sizes larger than typical network MTUs (1500 bytes). Thus, IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages carrying ML-KEM public keys and ciphertexts may be IKEv2 fragmented as per the IKEv2 Message Fragmentation specification <xref target="RFC7383"/>. </t>
-		<t>Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology-04"/> scenario, ML-KEM-512 and ML-KEM-768 Key Exchange Method identifiers 35 and 36 respectively <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-resistant-only key exchange. The encapsulation key and ciphertext sizes for these ML-KEM parameters may not push the UDP packet to size larger than typical network MTUs of 1500 bytes. ML-KEM-1024 Key Exchange Method identifier 37 <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT messages which could exceed typical network MTUs and cannot be IKEv2 fragmented, unless IP fragmentation is known not to be an issue (e.g., when reliable transport is used for IKE <xref target="RFC9329"/>, <xref target="smyslov-ipsecme-ikev2-reliable-transport"/>). </t>
+		<t>Although, this document focuses on using ML-KEM as the second key exchange in a PQ/T Hybrid KEM <xref target="I-D.ietf-pquip-pqt-hybrid-terminology"/> scenario, ML-KEM-512 and ML-KEM-768 Key Exchange Method identifiers 35 and 36 respectively <bcp14>MAY</bcp14> be used in IKE_SA_INIT as a quantum-resistant-only key exchange. The encapsulation key and ciphertext sizes for these ML-KEM parameters may not push the UDP packet to size larger than typical network MTUs of 1500 bytes. ML-KEM-1024 Key Exchange Method identifier 37 <bcp14>SHOULD NOT</bcp14> be used in IKE_SA_INIT messages which could exceed typical network MTUs and cannot be IKEv2 fragmented, unless IP fragmentation is known not to be an issue (e.g., when reliable transport is used for IKE <xref target="RFC9329"/>, <xref target="I-D.smyslov-ipsecme-ikev2-reliable-transport"/>). </t>
       </section>
       <section anchor="key-exchange-payload">
         <name>Key Exchange Payload</name>
@@ -205,111 +205,20 @@ appear in all capitals, as shown here.</t>
           </front>
           <seriesInfo name="NIST" value="Federal Information Processing Standards"/>
         </reference>
-        <reference anchor="RFC9242">
-          <front>
-            <title>Intermediate Exchange in the Internet Key Exchange Protocol Version 2 (IKEv2)</title>
-            <author fullname="V. Smyslov" initials="V." surname="Smyslov"/>
-            <date month="May" year="2022"/>
-          </front>
-          <seriesInfo name="RFC" value="9242"/>
-          <seriesInfo name="DOI" value="10.17487/RFC9242"/>
-        </reference>
-        <reference anchor="RFC9370">
-          <front>
-            <title>Multiple Key Exchanges in the Internet Key Exchange Protocol Version 2 (IKEv2)</title>
-            <author fullname="CJ. Tjhai" initials="CJ." surname="Tjhai"/>
-            <author fullname="M. Tomlinson" initials="M." surname="Tomlinson"/>
-            <author fullname="G. Bartlett" initials="G." surname="Bartlett"/>
-            <author fullname="S. Fluhrer" initials="S." surname="Fluhrer"/>
-            <author fullname="D. Van Geest" initials="D." surname="Van Geest"/>
-            <author fullname="O. Garcia-Morchon" initials="O." surname="Garcia-Morchon"/>
-            <author fullname="V. Smyslov" initials="V." surname="Smyslov"/>
-            <date month="May" year="2023"/>
-          </front>
-          <seriesInfo name="RFC" value="9370"/>
-          <seriesInfo name="DOI" value="10.17487/RFC9370"/>
-        </reference>
-        <reference anchor="RFC2119">
-          <front>
-            <title>Key words for use in RFCs to Indicate Requirement Levels</title>
-            <author fullname="S. Bradner" initials="S." surname="Bradner"/>
-            <date month="March" year="1997"/>
-          </front>
-          <seriesInfo name="BCP" value="14"/>
-          <seriesInfo name="RFC" value="2119"/>
-          <seriesInfo name="DOI" value="10.17487/RFC2119"/>
-        </reference>
-        <reference anchor="RFC8174">
-          <front>
-            <title>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</title>
-            <author fullname="B. Leiba" initials="B." surname="Leiba"/>
-            <date month="May" year="2017"/>
-          </front>
-          <seriesInfo name="BCP" value="14"/>
-          <seriesInfo name="RFC" value="8174"/>
-          <seriesInfo name="DOI" value="10.17487/RFC8174"/>
-        </reference>
-        <reference anchor="RFC7296">
-          <front>
-            <title>Internet Key Exchange Protocol Version 2 (IKEv2)</title>
-            <author fullname="C. Kaufman" initials="C." surname="Kaufman"/>
-            <author fullname="P. Hoffman" initials="P." surname="Hoffman"/>
-            <author fullname="Y. Nir" initials="Y." surname="Nir"/>
-            <author fullname="P. Eronen" initials="P." surname="Eronen"/>
-            <author fullname="T. Kivinen" initials="T." surname="Kivinen"/>
-            <date month="October" year="2014"/>
-          </front>
-          <seriesInfo name="STD" value="79"/>
-          <seriesInfo name="RFC" value="7296"/>
-          <seriesInfo name="DOI" value="10.17487/RFC7296"/>
-        </reference>
+		<xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9242.xml"/>
+		<xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9370.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+		<xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.7296.xml"/>
       </references>
       <references anchor="sec-informative-references">
         <name>Informative References</name>
+		<xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.6023.xml"/>
 		<xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.9329.xml"/>
 		<xi:include href="https://datatracker.ietf.org/doc/bibxml3/draft-smyslov-ipsecme-ikev2-reliable-transport.xml"/>
-        <reference anchor="I-D.ietf-ipsecme-ikev2-qr-alt" target="https://datatracker.ietf.org/doc/html/draft-ietf-ipsecme-ikev2-qr-alt-10">
-          <front>
-            <title>
-            Mixing Preshared Keys in the IKE_INTERMEDIATE and in the CREATE_CHILD_SA Exchanges of IKEv2 for Post-quantum Security
-            </title>
-            <author initials="V." surname="Smyslov" fullname="Valery Smyslov">
-              <organization>ELVIS-PLUS</organization>
-            </author>
-            <date month="May" day="23" year="2025"/>
-          </front>
-          <seriesInfo name="Internet-Draft" value="draft-ietf-ipsecme-ikev2-qr-alt-10"/>
-        </reference>
-        <reference anchor="RFC6023" target="https://www.rfc-editor.org/info/rfc6023">
-           <front>
-              <title>
-              A Childless Initiation of the Internet Key Exchange Version 2 (IKEv2) Security Association (SA)
-              </title>
-              <author fullname="Y. Nir" initials="Y." surname="Nir"/>
-              <author fullname="H. Tschofenig" initials="H." surname="Tschofenig"/>
-              <author fullname="H. Deng" initials="H." surname="Deng"/>
-              <author fullname="R. Singh" initials="R." surname="Singh"/>
-              <date month="October" year="2010"/>
-           </front>
-           <seriesInfo name="RFC" value="6023"/>
-           <seriesInfo name="DOI" value="10.17487/RFC6023"/>
-        </reference>
-        <reference anchor="I-D.ietf-pquip-pqt-hybrid-terminology-04" target="https://datatracker.ietf.org/doc/html/draft-ietf-pquip-pqt-hybrid-terminology-04">
-          <front>
-            <title>Terminology for Post-Quantum Traditional Hybrid Schemes</title>
-            <author initials="F." surname="D" fullname="Florence D">
-              <organization>UK National Cyber Security Centre</organization>
-            </author>
-            <author initials="M." surname="P" fullname="Michael P">
-              <organization>UK National Cyber Security Centre</organization>
-            </author>
-            <author initials="B." surname="Hale" fullname="Britta Hale">
-              <organization>Naval Postgraduate School</organization>
-            </author>
-            <date month="September" day="10" year="2024"/>
-          </front>
-          <seriesInfo name="Internet-Draft" value="draft-ietf-pquip-pqt-hybrid-terminology-04"/>
-        </reference>
+		<xi:include href="https://datatracker.ietf.org/doc/bibxml3/draft-smyslov-ipsecme-ikev2-downgrade-prevention.xml"/>
+        <xi:include href="https://datatracker.ietf.org/doc/bibxml3/draft-ietf-ipsecme-ikev2-qr-alt.xml"/>
+		<xi:include href="https://datatracker.ietf.org/doc/bibxml3/draft-ietf-pquip-pqt-hybrid-terminology.xml"/>
         <reference anchor="NIST-PQ">
           <front>
             <title>Post-Quantum Cryptography</title>
@@ -320,43 +229,9 @@ appear in all capitals, as shown here.</t>
           </front>
           <seriesInfo name="https://csrc.nist.gov/projects/post-quantum-cryptography" value=""/>
         </reference>
-        <reference anchor="RFC8784">
-          <front>
-            <title>Mixing Preshared Keys in the Internet Key Exchange Protocol Version 2 (IKEv2) for Post-quantum Security</title>
-            <author fullname="S. Fluhrer" initials="S." surname="Fluhrer"/>
-            <author fullname="P. Kampanakis" initials="P." surname="Kampanakis"/>
-            <author fullname="D. McGrew" initials="D." surname="McGrew"/>
-            <author fullname="V. Smyslov" initials="V." surname="Smyslov"/>
-            <date month="June" year="2020"/>
-          </front>
-          <seriesInfo name="RFC" value="8784"/>
-          <seriesInfo name="DOI" value="10.17487/RFC8784"/>
-        </reference>
-        <reference anchor="I-D.draft-cfrg-schwabe-kyber-04" target="https://datatracker.ietf.org/doc/html/draft-cfrg-schwabe-kyber-04">
-          <front>
-            <title>Kyber Post-Quantum KEM</title>
-            <author fullname="Peter Schwabe" initials="P." surname="Schwabe">
-              <organization>MPI-SP &amp; Radboud University</organization>
-            </author>
-            <author fullname="Bas Westerbaan" initials="B." surname="Westerbaan">
-              <organization>Cloudflare</organization>
-            </author>
-            <date month="January" day="2" year="2024"/>
-          </front>
-          <seriesInfo name="Internet-Draft" value="draft-cfrg-schwabe-kyber-04"/>
-        </reference>
-        <reference anchor="RFC7383">
-          <front>
-            <title>Internet Key Exchange Protocol Version 2 (IKEv2) Message Fragmentation</title>
-            <author fullname="V. Smyslov" initials="V." surname="Smyslov"/>
-            <date month="November" year="2014"/>
-            <abstract>
-              <t>This document describes a way to avoid IP fragmentation of large Internet Key Exchange Protocol version 2 (IKEv2) messages. This allows IKEv2 messages to traverse network devices that do not allow IP fragments to pass through.</t>
-            </abstract>
-          </front>
-          <seriesInfo name="RFC" value="7383"/>
-          <seriesInfo name="DOI" value="10.17487/RFC7383"/>
-        </reference>
+		<xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.8784.xml"/>
+		<xi:include href="https://datatracker.ietf.org/doc/bibxml3/draft-cfrg-schwabe-kyber.xml"/>
+		<xi:include href="https://bib.ietf.org/public/rfc/bibxml/reference.RFC.7383.xml"/>
         <reference anchor="PQ-PROOF2" target="https://eprint.iacr.org/2023/972">
           <front>
             <title>Security of Hybrid Key Establishment using Concatenation</title>
@@ -425,16 +300,6 @@ appear in all capitals, as shown here.</t>
             </author>
             <date year="2025"/>
           </front>
-        </reference>
-        <reference anchor="I-D.smyslov-ipsecme-ikev2-downgrade-prevention" target="https://datatracker.ietf.org/doc/html/draft-smyslov-ipsecme-ikev2-downgrade-prevention-00">
-          <front>
-            <title>Prevention Downgrade Attacks on the Internet Key Exchange Protocol Version 2 (IKEv2)</title>
-            <author initials="V." surname="Smyslov" fullname="Valery Smyslov">
-              <organization>ELVIS-PLUS</organization>
-            </author>
-            <date month="June" day="25" year="2025"/>
-          </front>
-          <seriesInfo name="Internet-Draft" value="draft-smyslov-ipsecme-ikev2-downgrade-prevention-00"/>
         </reference>
       </references>
     </references>
