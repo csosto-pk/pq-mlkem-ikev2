@@ -136,6 +136,7 @@ appear in all capitals, as shown here.</t>
         <t>Responders <bcp14>MUST</bcp14> perform the checks on the initiator public key specified in section 7.2 of the Module-Lattice-Based KEM standard <xref target="FIPS203"/> before the Encaps(pk) operation. If the checks fail, the responder <bcp14>SHOULD</bcp14> send a Notify payload of type INVALID_SYNTAX as a response to the request from initiator.</t>
         <t>Initiators <bcp14>MUST</bcp14> perform the Ciphertext type check specified in section 7.3 of the Module-Lattice-Based KEM standard <xref target="FIPS203"/> before the Decaps(sk, ct) operation. If the check fails, the initiator <bcp14>MUST</bcp14> reject the ciphertext and <bcp14>MUST</bcp14> fail the exchange, log the error, and stop creating the SA (i.e. not initiate IKE_AUTH or next IKE_INTERMEDIATE). <!-- [ EDNOTE: Removing since it violates RFC 7296 Section 2.21 as Valery pointed out. ] In this case, the initiator <bcp14>MAY</bcp14> send a Notify payload of type INVALID_SYNTAX to the responder as a separate INFORMATIONAL exchange, usually with no other payloads. This is an exception for the general rule of not starting new exchanges based on errors in responses. --> If the error occurs in the CREATE_CHILD_SA or IKE_FOLLOWUP_KE exchanges, the initiator <bcp14>MUST</bcp14> delete the existing IKE SA and send a Delete payload in a new INFORMATIONAL exchange for the responder to also remove it. </t>
         <t>Note that during decapsulation, ML-KEM uses implicit rejection which leads the decapsulating entity to implicitly reject the decapsulated shared secret by setting it to a hash of the ciphertext together with a random value stored in the ML-KEM secret when the re-encrypted shared secret does not match the original one.</t>
+		<t>Section 4 of <xref target="SP800227"/> includes guidelines for using KEMs securely in applications.</t>
       </section>
     </section>
     <section anchor="security-considerations">
@@ -301,12 +302,22 @@ appear in all capitals, as shown here.</t>
             <date year="2025"/>
           </front>
         </reference>
+        <reference anchor="SP800227" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-227.pdf">
+          <front>
+            <title>Recommendations for Key-Encapsulation Mechanisms</title>
+            <author>
+              <organization>National Institute of Standards and Technology (NIST)</organization>
+            </author>
+            <date year="2025" month="September" day="18"/>
+          </front>
+          <seriesInfo name="NIST" value="Federal Information Processing Standards"/>
+        </reference>
       </references>
     </references>
 
 <section numbered="false" anchor="acknowledgments">
       <name>Acknowledgments</name>
-      <t>The authors would like to thank Valery Smyslov, Graham Bartlett, Scott Fluhrer, Ben S, Leonie Bruckert, Tero Kivinen, Rebecca Guthrie, Wang Guilin, Michael Richardson, and Gerardo Ravago for their valuable feedback. Special thanks to Chris Patton for bringing up the downgrade issue.</t>
+      <t>The authors would like to thank Valery Smyslov, Graham Bartlett, Scott Fluhrer, Ben S, Leonie Bruckert, Tero Kivinen, Rebecca Guthrie, Wang Guilin, Michael Richardson, John Mattsson, and Gerardo Ravago for their valuable feedback. Special thanks to Chris Patton for bringing up the downgrade issue.</t>
     </section>
   </back>
 </rfc>
