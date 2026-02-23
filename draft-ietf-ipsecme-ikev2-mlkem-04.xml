@@ -72,10 +72,9 @@ appear in all capitals, as shown here.</t>
     
     <section anchor="ml-kem-in-ikev2">
       <name>ML-KEM in IKEv2</name>
-      <section anchor="ml-kem-in-ikeintermediate-messages">
-        <name>ML-KEM in IKE_INTERMEDIATE, CREATE_CHILD_SA, or IKE_FOLLOWUP_KE messages</name>
-        <t>Intuitively, ML-KEM can be used in IKEv2 like a traditional key exchange, where the the initiator's KE payload is an ML-KEM public key and the responder KE payload is the ML-KEM ciphertext. The 32-byte ML-KEM shared secret output is used like a traditional shared secret (e.g. g^ir value) without padding. ML-KEM key exchanges can be negotiated in IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages as defined in the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/>. <xref target="appendix"/> summarizes them for completeness.</t> 
-		  
+      <t>Intuitively, ML-KEM can be used in IKEv2 like a traditional key exchange, where the the initiator's KE payload is an ML-KEM public key and the responder KE payload is the ML-KEM ciphertext. The 32-byte ML-KEM shared secret output is used like a traditional shared secret (e.g. g^ir value) without padding. ML-KEM key exchanges can be negotiated in IKE_INTERMEDIATE or IKE_FOLLOWUP_KE messages as defined in the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/>. <xref target="appendix"/> summarizes them for completeness.</t> 
+
+	  <section anchor="key-exchange-payload">
         <t>The KE payload is shown below and the fields inside it has meaning as defined in Section 3.4 of the IKEv2 standard <xref target="RFC7296"/>:</t>
         <artwork><![CDATA[
                      1                   2                   3
