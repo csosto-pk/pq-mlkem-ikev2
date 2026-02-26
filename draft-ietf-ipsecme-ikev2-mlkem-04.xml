@@ -59,7 +59,7 @@
         <name>ML-KEM</name>
         <t>ML-KEM is a standardized lattice-based key encapsulation mechanism <xref target="FIPS203"/>. It uses Module Learning with Errors as its underlying primitive which is a structured lattices variant that offers good performance and relatively small and balanced key and ciphertext sizes. ML-KEM was standardized with three parameters, ML-KEM-512, ML-KEM-768, and ML-KEM-1024. These were mapped by NIST to the three security levels defined in the NIST PQC Project, Level 1, 3, and 5. These levels correspond to the hardness of breaking AES-128, AES-192 and AES-256 respectively.</t>
         <t>ML-KEM-512, ML-KEM-768 and ML-KEM-1024 key exchanges will not have noticeable performance impact on IKEv2/IPsec tunnels which usually stay up for long periods of time and transfer sizable amounts of data. ML-KEM-768 and ML-KEM-1024 public key and ciphertext sizes can exceed the network MTU; these key exchanges could require two or three network IP packets from both the initiator and the responder. </t>
-		<aside>NOTE: ML-KEM's Decaps routine uses implicit rejection and will not return a distinguished error value. Instead it will always produce a value which will be incorrect if the ct was manipulated and will be detected by the protocol (IKEv2).</aside>
+		<t>Note that ML-KEM's Decaps routine uses implicit rejection and will not return a distinguished error value. Instead it will always produce an ss value which will be incorrect if the ct was manipulated and will be detected by the IKEv2 protocol.</t>
       </section>
       <section anchor="conventions-and-definitions">
         <name>Conventions and Definitions</name>
