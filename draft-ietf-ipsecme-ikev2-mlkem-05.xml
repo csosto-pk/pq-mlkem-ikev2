@@ -273,7 +273,7 @@ appear in all capitals, as shown here.</t>
         </reference>
         <reference anchor="PQIKEV2-FA" target="https://www.mnm-team.org/pub/Publikationen/gggh21b/PDF-Version/gggh21b.pdf ">
           <front>
-            <title>A formal analysis of IKEv2’s post-quantum extension</title>
+            <title>A formal analysis of IKEv2's post-quantum extension</title>
             <author initials="S." surname="Gazdag" fullname="Stefan-Lukas Gazdag">
               <organization></organization>
             </author>
