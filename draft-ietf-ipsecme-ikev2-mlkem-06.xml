@@ -48,7 +48,7 @@
             <t>'KeyGen() -&gt; (pk, sk)': A probabilistic key generation algorithm, which generates a public / encapsulation key 'pk' and a private / decapsulation key 'sk'. The resulting pk is sent to the responder in the KEi payload.</t>
           </li>
           <li>
-            <t>'Encaps(pk) -&gt; (ct, ss)': A probabilistic encapsulation algorithm, which takes as input a public key pk (from the KEi) and outputs a ciphertext 'ct' and shared secret 'ss'. The ct is sent back to intiator in the KEr payload.</t>
+            <t>'Encaps(pk) -&gt; (ct, ss)': A probabilistic encapsulation algorithm, which takes as input a public key pk (from the KEi) and outputs a ciphertext 'ct' and shared secret 'ss'. The ct is sent back to the initiator in the KEr payload.</t>
           </li>
           <li>
             <t>'Decaps(sk, ct) -&gt; ss': A decapsulation algorithm, which takes as input a secret key sk and ciphertext ct (from the KEr) and outputs a shared secret ss, or in some rare cases a distinguished error value.</t>
@@ -73,7 +73,7 @@ appear in all capitals, as shown here.</t>
     
     <section anchor="ml-kem-in-ikev2">
       <name>ML-KEM in IKEv2</name>
-      <t>Intuitively, ML-KEM is used in IKEv2 like a traditional key exchange, where the the initiator's KE payload is an ML-KEM public key and the responder KE payload is the ML-KEM ciphertext. The 32-byte ML-KEM shared secret output is used without padding like the traditional shared g^ir value in the IKEv2 specification <xref target="RFC7296"/>. ML-KEM key exchanges can be negotiated in IKE_INTERMEDIATE, CREATE_CHILD_SA, or IKE_FOLLOWUP_KE messages as defined in the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/>. <xref target="appendix"/> summarizes them for completeness.</t> 
+      <t>Intuitively, ML-KEM is used in IKEv2 like a traditional key exchange, where the initiator's KE payload is an ML-KEM public key and the responder KE payload is the ML-KEM ciphertext. The 32-byte ML-KEM shared secret output is used without padding like the traditional shared g^ir value in the IKEv2 specification <xref target="RFC7296"/>. ML-KEM key exchanges can be negotiated in IKE_INTERMEDIATE, CREATE_CHILD_SA, or IKE_FOLLOWUP_KE messages as defined in the Multiple Key Exchanges in IKEv2 specification <xref target="RFC9370"/>. <xref target="appendix"/> summarizes them for completeness.</t> 
 
 	  <section anchor="key-exchange-payload">
 		<name>Key Exchange Payload</name>
