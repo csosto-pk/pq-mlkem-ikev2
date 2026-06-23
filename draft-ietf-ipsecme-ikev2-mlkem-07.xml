@@ -153,7 +153,7 @@ appear in all capitals, as shown here.</t>
     </section>
     <section anchor="iana-considerations">
       <name>IANA Considerations</name>
-      <t>IANA is requested to assign three values for the names "ml-kem-512", "ml-kem-768", and "ml-kem-1024" in the IKEv2 "Transform Type 4 - Key Exchange Method Transform IDs" and has listed this document as the reference. The Recipient Tests field should also point to this document:</t>
+      <t>IANA is requested to assign three values for the names "ml-kem-512", "ml-kem-768", and "ml-kem-1024" in the IKEv2 "Transform Type 4 - Key Exchange Method Transform IDs" <xref target="IANA-REF"/> and has listed this document as the reference. The Recipient Tests field should also point to this document:</t>
       <table anchor="tab1">
         <name>Updates to the IANA "Transform Type 4 - Key Exchange Method Transform IDs" table</name>
         <thead>
@@ -299,6 +299,15 @@ appear in all capitals, as shown here.</t>
               <organization></organization>
             </author>
             <date year="2025"/>
+          </front>
+        </reference>
+        <reference anchor="IANA-REF" target="https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-8">
+          <front>
+            <title>IKEv2 Parameters: Transform Type 4 - Key Exchange Method Transform IDs</title>
+            <author fullname="IANA">
+              <organization></organization>
+            </author>
+            <date year="2026"/>
           </front>
         </reference>
         <reference anchor="SP800227" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-227.pdf">
