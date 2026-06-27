@@ -170,22 +170,22 @@ appear in all capitals, as shown here.</t>
             <td align="left">35</td>
             <td align="left">ml-kem-512</td>
             <td align="left"> </td>
-            <td align="left">[TBD, this RFC, <xref target="receipent-tests"/>],</td>
-            <td align="left">[TBD, this RFC] </td>
+            <td align="left">[this RFC, <xref target="receipent-tests"/>],</td>
+            <td align="left">[this RFC] </td>
           </tr>
           <tr>
             <td align="left">36</td>
             <td align="left">ml-kem-768</td>
             <td align="left"> </td>
-            <td align="left">[TBD, this RFC, <xref target="receipent-tests"/>],</td>
-            <td align="left">[TBD, this RFC]</td>
+            <td align="left">[this RFC, <xref target="receipent-tests"/>],</td>
+            <td align="left">[this RFC]</td>
           </tr>
           <tr>
             <td align="left">37</td>
             <td align="left">ml-kem-1024</td>
             <td align="left"> </td>
-            <td align="left">[TBD, this RFC, <xref target="receipent-tests"/>],</td>
-            <td align="left">[TBD, this RFC]</td>
+            <td align="left">[this RFC, <xref target="receipent-tests"/>],</td>
+            <td align="left">[this RFC]</td>
           </tr>
 
         </tbody>
